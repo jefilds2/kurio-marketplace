@@ -2,6 +2,8 @@
 
 Demonstração para o desafio frontend da Jungle Gaming. Os fluxos usam contas, carteiras, pagamentos e transações fictícias.
 
+O [Guia do KURIO](GUIA-DO-KURIO.md) explica a estrutura em linguagem simples e reúne o roteiro para publicar, testar no endereço público e anexar as evidências.
+
 ## Executar localmente
 
 Requisitos de execução: Node.js 22.19 ou mais recente, npm e um navegador com suporte a Service Worker. No Windows, execute a partir desta pasta no PowerShell.
