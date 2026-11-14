@@ -151,6 +151,13 @@ O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No
 - **Correção:** o ícone adiciona a edição e a quantidade escolhidas e mantém a ficha aberta. Comprar NFT abre o carrinho com os itens existentes. Conectar e finalizar inicia o checkout.
 - **Reteste:** Playwright verifica a inclusão pelo ícone, a abertura do carrinho vazio ou preenchido por Comprar NFT, os subtotais após abrir a lista e o avanço para pagamento.
 
+## BUG-023 · Aviso de adição bloqueava o próximo toque no mobile
+
+- **Reprodução:** adicione um NFT, volte rapidamente ao catálogo e abra outra ficha. Com o aviso ainda na tela, toque no ícone de carrinho na área coberta pelo aviso. Só o primeiro item aparece no carrinho.
+- **Causa:** o aviso fixo recebia os toques destinados ao botão por baixo. A segunda inclusão sequer chegava à API simulada.
+- **Correção:** deixar o aviso visível e perceptível para leitores de tela, permitindo que toques e cliques cheguem aos controles atrás dele.
+- **Reteste:** o Playwright toca no botão enquanto o aviso o cobre e verifica os dois produtos na lista após refresh e login.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

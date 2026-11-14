@@ -247,6 +247,53 @@ test('carrinho persiste após refresh e login, aplica cupom, edita e remove', as
   await page.getByRole('button', { name: 'Remover ' + ape }).click()
   await expect(page.locator('#carrinho-vazio')).toBeVisible()
 })
+test('adições consecutivas preservam NFTs distintos durante o aviso', async ({ page }, info) => {
+  const mobile = info.project.name === 'mobile'
+  const adicionar = page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true })
+  const aviso = page.getByText('NFT adicionado ao carrinho.', { exact: true })
+  await detalhe(page)
+  await adicionar.click()
+  await expect(aviso).toBeVisible()
+  if (mobile) {
+    await page.getByRole('link', { name: 'Voltar ao mercado' }).click()
+    await page.locator('.design-inicio [data-nft-id="nft-02"] .imagem-nft').click()
+    await expect(aviso).toBeVisible()
+    await adicionar.scrollIntoViewIfNeeded()
+    const avisoBounds = (await aviso.boundingBox())!
+    await adicionar.evaluate((botao, posicao) => {
+      const bounds = botao.getBoundingClientRect()
+      window.scrollBy({ top: bounds.top + bounds.height / 2 - posicao, behavior: 'instant' })
+    }, avisoBounds.y + avisoBounds.height / 2)
+    const botaoBounds = (await adicionar.boundingBox())!
+    const x = botaoBounds.x + botaoBounds.width / 2
+    const y = botaoBounds.y + botaoBounds.height / 2
+    expect(x).toBeGreaterThan(avisoBounds.x)
+    expect(x).toBeLessThan(avisoBounds.x + avisoBounds.width)
+    expect(y).toBeGreaterThan(avisoBounds.y)
+    expect(y).toBeLessThan(avisoBounds.y + avisoBounds.height)
+    const inclusao = page.waitForResponse(resposta => resposta.request().method() === 'POST'
+      && new URL(resposta.url()).pathname.endsWith('/carrinho/itens') && resposta.ok())
+    await page.touchscreen.tap(x, y)
+    await inclusao
+    await page.getByRole('button', { name: 'Comprar NFT', exact: true }).click()
+  } else {
+    await page.goto('/nfts/nft-02')
+    await adicionar.click()
+    await expect(aviso).toBeVisible()
+    await page.goto('/carrinho')
+  }
+  const itens = page.locator('#carrinho-lista .carrinho-linha')
+  await expect(itens).toHaveCount(2)
+  await expect(itens.filter({ hasText: ape })).toBeVisible()
+  await expect(itens.filter({ hasText: 'Sage Nomad #009' })).toBeVisible()
+  await page.reload()
+  await expect(itens).toHaveCount(2)
+  await page.getByRole('button', { name: 'Conectar e finalizar' }).click()
+  await login(page)
+  await expect(page.locator('#pagina-pagamentos')).toBeVisible()
+  await page.goto('/carrinho')
+  await expect(itens).toHaveCount(2)
+})
 test('compra do NFT ao recibo e retirada dos itens comprados', async ({ page }) => {
   await checkout(page)
   await page.locator('#pagamentos-confirmar').click()

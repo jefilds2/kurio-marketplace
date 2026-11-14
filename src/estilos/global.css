@@ -41,7 +41,7 @@
 .janela-conteudo { position: fixed; z-index: 81; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(95vw, 540px); max-height: calc(100dvh - 24px); overflow: auto; overscroll-behavior: contain; padding: 20px; border-radius: 14px; border: 1px solid var(--color-kurio-borda); background: var(--color-kurio-fundo); }
 .janela-conteudo .botao { min-height: 40px; }
 .janela-lateral { top: 0; right: 0; left: auto; transform: none; width: min(90vw, 360px); height: 100dvh; max-height: 100dvh; border-radius: 12px 0 0 12px; }
-.aviso-flutuante { position: fixed; z-index: 90; right: 20px; bottom: 72px; width: min(calc(100vw - 40px), 420px); padding: 13px; border-radius: 8px; border: 1px solid var(--color-kurio-borda); background: var(--color-kurio-painel); }
+.aviso-flutuante { position: fixed; z-index: 90; right: 20px; bottom: 72px; width: min(calc(100vw - 40px), 420px); padding: 13px; border-radius: 8px; border: 1px solid var(--color-kurio-borda); background: var(--color-kurio-painel); pointer-events: none; }
 .aviso-flutuante:empty { padding: 0; border: 0; }
 .demo-controle { width: min(100% - 48px, 1200px); margin: 0 auto 16px; }
 .preco { color: var(--color-kurio-destaque); font-weight: 700; white-space: nowrap; }
