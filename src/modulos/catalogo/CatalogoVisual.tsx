@@ -1,14 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Heart, Search, SlidersHorizontal } from 'lucide-react'
 import { useFavorito } from '../nft/Favoritar'
 import { Button, Erro, Janela, Skeleton } from '../../componentes/ui'
-import { comProps, encontrar, modelo, Referencia, renderizar, temClasse, texto, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, encontrar, modelo, Referencia, renderizar, temClasse, texto, type Alterar } from '../../componentes/Referencia'
 import { buscaCatalogo, categorias, exibirEth, redes, type BuscaCatalogo, type Nft } from '../../contratos/mercado'
 import { mercadoApi } from '../../integracoes/api'
 import { useSessao } from '../../app/contexto'
 import { useCarrinhoMutation } from '../carrinho/estado'
+import html from '../../referencias/inicio.html?raw'
+
+const pagina = definirReferencia('inicio', html)
 
 export function PaginaCatalogoVisual({ filtros, navegar }: { filtros: BuscaCatalogo; navegar: (mudanca: Partial<BuscaCatalogo>) => void }) {
   const [destaque, setDestaque] = useState(0)
@@ -119,7 +122,7 @@ export function PaginaCatalogoVisual({ filtros, navegar }: { filtros: BuscaCatal
     </>)
     return undefined
   }
-  return <Referencia pagina="inicio" alterar={visual} busca={{ valor: filtros.busca, mudar: busca => mudar({ busca }) }} extras={<>
+  return <Referencia pagina={pagina} alterar={visual} busca={{ valor: filtros.busca, mudar: busca => mudar({ busca }) }} extras={<>
     <Janela titulo="Faixa de preço" descricao="Informe os valores em ETH." aberta={faixaAberta} aoMudar={setFaixaAberta}>
       <form className="flex flex-col gap-3" onSubmit={e => {
         e.preventDefault()
@@ -150,10 +153,12 @@ export function PaginaCatalogoVisual({ filtros, navegar }: { filtros: BuscaCatal
 }
 
 let catalogo: ReturnType<typeof modelo> | undefined
-export function CartaoVisual({ nft, posicao, adicionar }: { nft: Nft; posicao: number; adicionar?: () => void }) {
+export const CartaoVisual = memo(function CartaoVisual({ nft, posicao, adicionar }: {
+  nft: Nft; posicao: number; adicionar?: () => void
+}) {
   const favorito = useFavorito(nft.id)
   const modeloId = 'nft-' + String(posicao % 9 + 1).padStart(2, '0')
-  catalogo ??= modelo('inicio', 'mercado')
+  catalogo ??= modelo(pagina, 'mercado')
   const cartao = encontrar(catalogo, node => node.attribs['data-nft-id'] === modeloId)
   if (!cartao) return null
   return renderizar(cartao, (node, _props, filhos) => {
@@ -177,4 +182,4 @@ export function CartaoVisual({ nft, posicao, adicionar }: { nft: Nft; posicao: n
     if (temClasse(node, 'adicionar-carrinho')) return adicionar ? comProps(node, { onClick: adicionar, 'aria-label': `Adicionar ${nft.nome} ao carrinho` }, filhos()) : <></>
     return undefined
   })
-}
+})

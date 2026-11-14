@@ -3,9 +3,12 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { cache, carteirasConsulta, perfilConsulta } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
-import { comProps, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
 import { erroDaApi, mercadoApi } from '../../integracoes/api'
 import type { Carteira } from '../../contratos/mercado'
+import html from '../../referencias/minha-conta.html?raw'
+
+const pagina = definirReferencia('conta', html)
 
 export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
   const { sessao, avisar } = useSessao()
@@ -126,5 +129,5 @@ export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
       erroAvatar || Object.values(detalhe?.campos ?? {}).join(' ') || detalhe?.mensagem || '')
     return undefined
   }
-  return <Referencia pagina="conta" alterar={visual} />
+  return <Referencia pagina={pagina} alterar={visual} />
 }

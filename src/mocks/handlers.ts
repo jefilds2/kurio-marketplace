@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from 'msw'
-import { z } from 'zod'
+import { z } from 'zod/mini'
 import { buscaCatalogo, cenarios, cotar, cupom, decimal, item, pedido, wei } from '../contratos/mercado'
 import { carrinhoDo, donoDo, editarBanco, falhar, lerBanco, resetBanco, tokenDe, usuarioDo } from './banco'
 import { alterarItem, calcularCotacao, criarPedido, encontrarEdicao, mesmaEdicao, quantidadeReservada, validarCupom } from './compras'
@@ -11,17 +11,18 @@ const porPagina = 9
 export const handlers = [
   ...contaHandlers,
   http.get(base + '/nfts', resposta(async ({ request }) => {
-    const falha = await simular(request)
+    const banco = await lerBanco()
+    const falha = await simular(request, banco.cenario)
     if (falha) return falha
     const params = new URL(request.url).searchParams
     const filtros = buscaCatalogo.parse({ ...Object.fromEntries(params),
       categorias: params.getAll('categorias[]'), redes: params.getAll('redes[]') })
-    const banco = await lerBanco()
     const normalizar = (valor: string) => valor.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    const busca = normalizar(filtros.busca)
     const itens = banco.cenario === 'vazio' ? [] : banco.nfts.filter(nft => {
       const preco = wei(nft.edicoes[0].preco)
       return (filtros.vitrine === 'todos' || nft.destaque === (filtros.vitrine === 'lancamentos' ? 'Novo' : 'Raro'))
-        && normalizar(nft.nome + ' ' + nft.colecao).includes(normalizar(filtros.busca))
+        && normalizar(nft.nome + ' ' + nft.colecao).includes(busca)
         && (!filtros.categorias.length || filtros.categorias.includes(nft.categoria))
         && (!filtros.redes.length || filtros.redes.includes(nft.rede))
         && (!filtros.minimo || preco >= wei(filtros.minimo))
@@ -36,9 +37,9 @@ export const handlers = [
       paginas: Math.max(1, Math.ceil(itens.length / porPagina)), destaques: banco.nfts.slice(0, 3) }
   })),
   http.get(base + '/nfts/:id', resposta(async ({ request, params }) => {
-    const falha = await simular(request)
-    if (falha) return falha
     const banco = await lerBanco()
+    const falha = await simular(request, banco.cenario)
+    if (falha) return falha
     const nft = banco.nfts.find(nft => nft.id === params.id)
     if (!nft) falhar(404, 'nft-inexistente', 'NFT não encontrado.')
     return { ...nft, edicoes: nft.edicoes.map(edicao => ({ ...edicao,
@@ -61,9 +62,9 @@ export const handlers = [
     })
   })),
   http.get(base + '/carrinho', resposta(async ({ request }) => {
-    const falha = await simular(request)
-    if (falha) return falha
     const banco = await lerBanco()
+    const falha = await simular(request, banco.cenario)
+    if (falha) return falha
     return calcularCotacao(banco, donoDo(banco, request), 'Ethereum')
   })),
   http.post(base + '/carrinho/itens', resposta(async ({ request }) => {
@@ -133,7 +134,7 @@ export const handlers = [
   })),
   http.get(base + '/demo/cenario', resposta(async () => ({ cenario: (await lerBanco()).cenario }))),
   http.put(base + '/demo/cenario', resposta(async ({ request }) => {
-    const dados = await corpo(request, z.object({ cenario: z.enum(cenarios), reset: z.boolean().default(false) }))
+    const dados = await corpo(request, z.object({ cenario: z.enum(cenarios), reset: z._default(z.boolean(), false) }))
     if (dados.reset) await resetBanco(dados.cenario)
     else await editarBanco(banco => { banco.cenario = dados.cenario })
     return { cenario: dados.cenario }
@@ -145,8 +146,8 @@ export const handlers = [
   }))),
   http.post(base + '/demo/nft', resposta(async ({ request }) => {
     const dados = await corpo(request, z.object({
-      nftId: z.string(), edicaoId: z.string().default('colecao'), preco: decimal.optional(),
-      estoque: z.number().int().min(0).max(999).optional(), repetir: z.boolean().default(false),
+      nftId: z.string(), edicaoId: z._default(z.string(), 'colecao'), preco: z.optional(decimal),
+      estoque: z.optional(z.int().check(z.minimum(0), z.maximum(999))), repetir: z._default(z.boolean(), false),
     }))
     const versao = await editarBanco(banco => {
       const { nft, edicao } = encontrarEdicao(banco, { ...dados, quantidade: 1 })

@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, Heart, ShoppingCart } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { comProps, temClasse, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, temClasse, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
 import { Erro, Janela, Skeleton } from '../../componentes/ui'
 import { exibirEth, type Nft } from '../../contratos/mercado'
 import { useSessao } from '../../app/contexto'
 import { mercadoApi } from '../../integracoes/api'
 import { useCarrinhoMutation } from '../carrinho/estado'
-import { CartaoVisual } from '../catalogo/CatalogoVisual'
 import { useFavorito } from './Favoritar'
 import { nftConsulta } from './Detalhe'
+import html from '../../referencias/mercado.html?raw'
+
+const pagina = definirReferencia('mercado', html)
 
 export function DetalheVisual({ id }: { id: string }) {
   const consulta = useQuery(nftConsulta(id))
@@ -24,14 +26,34 @@ function Ficha({ nft }: { nft: Nft }) {
   const [qtd, setQtd] = useState(1)
   const [zoom, setZoom] = useState(false)
   const [avaliacoes, setAvaliacoes] = useState(false)
+  const [paginaRelacionada, setPaginaRelacionada] = useState(1)
+  const [carregarRelacionados, setCarregarRelacionados] = useState(false)
+  const secaoRelacionados = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const secao = secaoRelacionados.current
+    if (!secao) return
+    const observar = new IntersectionObserver(([entrada]) => {
+      if (!entrada.isIntersecting) return
+      setCarregarRelacionados(true)
+      observar.disconnect()
+    }, { rootMargin: '250px' })
+    observar.observe(secao)
+    return () => observar.disconnect()
+  }, [])
   const { sessao, avisar } = useSessao()
   const navigate = useNavigate()
   const mutation = useCarrinhoMutation()
   const favorito = useFavorito(nft.id)
   const edicao = nft.edicoes.find(item => item.id === edicaoId) ?? nft.edicoes[0]
   const quantidade = Math.max(1, Math.min(qtd, edicao.estoque))
-  const relacionados = useQuery({ queryKey: ['catalogo', 'relacionados'], queryFn: ({ signal }) =>
+  const relacionados = useQuery({ queryKey: ['catalogo', 'relacionados'], enabled: carregarRelacionados, queryFn: ({ signal }) =>
     mercadoApi.catalogo({ busca: '', categorias: [], redes: [], minimo: '', maximo: '', vitrine: 'todos', ordem: 'recentes', pagina: 1 }, signal) })
+  const obrasRelacionadas = relacionados.data?.itens ?? []
+  const ordemRelacionada = [3, 4, 5, 6, 8, 1, 2, 0, 7]
+  const ordemEdicoes = ['unica', 'limitada', 'colecao', 'aberta']
+  const edicoes = [...nft.edicoes].sort((a, b) => ordemEdicoes.indexOf(a.id) - ordemEdicoes.indexOf(b.id))
+  const itensRelacionados = ordemRelacionada.map(indice => obrasRelacionadas[indice]).filter(item => item && item.id !== nft.id)
+  const deslocamento = [2, 0, 1][paginaRelacionada]
   async function adicionar(comprar: boolean) {
     if (!edicao.estoque) return
     try {
@@ -61,7 +83,7 @@ function Ficha({ nft }: { nft: Nft }) {
     }
     if (node.name === 'div' && Array.isArray(node.children) && node.children.some(filho =>
       filho.type === 'tag' && filho.name === 'span' && filho.children.some(texto => texto.type === 'text' && texto.data.trim() === '1/50'))) {
-      return comProps(node, {}, nft.edicoes.map(item => <button key={item.id} type="button"
+      return comProps(node, {}, edicoes.map(item => <button key={item.id} type="button"
         className={`rounded-full border px-2 py-[2px] text-[11px] ${item.id === edicaoId ? 'border-kurio-destaque text-kurio-destaque' : 'border-kurio-borda text-kurio-secundaria'}`}
         aria-pressed={item.id === edicaoId} aria-label={item.nome + (!item.estoque ? ' · Esgotada' : '')}
         onClick={() => { setEdicao(item.id); setQtd(1) }}>{item.nome.toUpperCase()}</button>))
@@ -110,8 +132,27 @@ function Ficha({ nft }: { nft: Nft }) {
     if (id === 'mercado-painel-detalhes' || id === 'mercado-painel-avaliacoes') {
       return comProps(node, ocultar(props, id === 'mercado-painel-detalhes' ? avaliacoes : !avaliacoes), filhos())
     }
-    if (id === 'mercado-lista-relacionados') return comProps(node, {}, relacionados.data?.itens.filter(item => item.id !== nft.id)
-      .slice(0, 4).map((item, i) => <CartaoVisual key={item.id} nft={item} posicao={i} />) ?? [])
+    if (id === 'mercado-mais-colecao') return comProps(node, { ref: secaoRelacionados }, filhos())
+    if (id === 'mercado-lista-relacionados') return comProps(node, {}, itensRelacionados.slice(0, 5).map((_, indice) => {
+      const item = itensRelacionados[(deslocamento + indice) % itensRelacionados.length]
+      return <article className="mercado-card-relacionado min-w-0" key={item.id}>
+        <Link to="/nfts/$nftId" params={{ nftId: item.id }} className="group block" aria-label={`Ver detalhes de ${item.nome}`}>
+          <div className="bg-kurio-painel p-[5px]">
+            <img src={item.imagens[0]} alt={item.nome} loading="lazy"
+              className="aspect-square w-full rounded-[10px] object-cover transition group-hover:opacity-90" />
+          </div>
+          <p className="mt-[9px] truncate text-[12px]">{item.nome}</p>
+          <p className="text-[12px] font-bold text-kurio-destaque">{exibirEth(item.edicoes[0].preco)}</p>
+        </Link>
+      </article>
+    }))
+    if (node.attribs['data-pagina-relacionados'] !== undefined) {
+      const indice = Number(node.attribs['data-pagina-relacionados'])
+      const ativa = indice === paginaRelacionada
+      const classe = String(props.className).replace(/(?<!:)\bbg-kurio-destaque\b/g, '')
+      return comProps(node, { 'aria-pressed': ativa, className: classe + (ativa ? ' bg-kurio-destaque' : ''),
+        onClick: () => setPaginaRelacionada(indice) }, filhos())
+    }
     if (node.attribs['data-compartilhar']) return comProps(node, { onClick: async () => {
       const tipo = node.attribs['data-compartilhar']
       if (tipo === 'email') { location.href = `mailto:?subject=${encodeURIComponent(nft.nome)}&body=${encodeURIComponent(location.href)}`; return }
@@ -123,7 +164,7 @@ function Ficha({ nft }: { nft: Nft }) {
     } }, filhos())
     return undefined
   }
-  return <Referencia pagina="mercado" alterar={visual} extras={<Janela titulo={nft.nome} descricao="Imagem ampliada."
+  return <Referencia pagina={pagina} alterar={visual} extras={<Janela titulo={nft.nome} descricao="Imagem ampliada."
     aberta={zoom} aoMudar={setZoom}>
       <img className="w-full rounded-xl" src={nft.imagens[imagem]} alt={nft.nome} />
       <div className="mt-3 flex gap-2" aria-label="Miniaturas do NFT">

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod/mini'
 
 export const categorias = ['Arte 3D', 'Colecionáveis', 'Generativa', 'Jogos', 'Assinaturas', 'Utilidade', 'Arte digital', 'Fotografia', 'Música'] as const
 export const redes = ['Ethereum', 'Polygon', 'Solana'] as const
@@ -9,17 +9,17 @@ export type Cenario = typeof cenarios[number]
 export type Rede = typeof redes[number]
 export type Eth = string
 
-export const decimal = z.string().regex(/^\d{1,12}(\.\d{1,18})?$/)
+export const decimal = z.string().check(z.regex(/^\d{1,12}(\.\d{1,18})?$/))
 const filtroPreco = z.union([z.literal(''), decimal])
 export const buscaCatalogo = z.object({
-  busca: z.string().trim().max(100).catch(''),
-  categorias: z.array(z.enum(categorias)).catch([]),
-  redes: z.array(z.enum(redes)).catch([]),
-  minimo: filtroPreco.catch(''),
-  maximo: filtroPreco.catch(''),
-  vitrine: z.enum(['todos', 'lancamentos', 'em-alta']).catch('todos'),
-  ordem: z.enum(['recentes', 'menor-preco', 'maior-preco']).catch('recentes'),
-  pagina: z.coerce.number().int().min(1).max(10000).catch(1),
+  busca: z.catch(z.string().check(z.trim(), z.maxLength(100)), ''),
+  categorias: z.catch(z.array(z.enum(categorias)), []),
+  redes: z.catch(z.array(z.enum(redes)), []),
+  minimo: z.catch(filtroPreco, ''),
+  maximo: z.catch(filtroPreco, ''),
+  vitrine: z.catch(z.enum(['todos', 'lancamentos', 'em-alta']), 'todos'),
+  ordem: z.catch(z.enum(['recentes', 'menor-preco', 'maior-preco']), 'recentes'),
+  pagina: z.catch(z.coerce.number().check(z.int(), z.minimum(1), z.maximum(10000)), 1),
 })
 export type BuscaCatalogo = z.infer<typeof buscaCatalogo>
 export type Edicao = { id: string; nome: string; preco: Eth; estoque: number }
@@ -30,37 +30,46 @@ export type Nft = {
 }
 export type Catalogo = { itens: Nft[]; total: number; paginas: number; destaques: Nft[] }
 
-const nome = z.string().trim().min(2, 'Informe ao menos dois caracteres.').max(100)
-const email = z.email('Informe um e-mail válido.').trim().toLowerCase().max(254)
-const senha = z.string().min(8, 'Use pelo menos oito caracteres.').max(128)
-export const login = z.object({ email, senha: z.string().min(1, 'Informe sua senha.').max(128) })
-export const cadastro = z.object({ nome, email, senha, confirmarSenha: z.string() })
-  .refine(v => v.senha === v.confirmarSenha, { path: ['confirmarSenha'], message: 'As senhas precisam ser iguais.' })
+const nome = z.string().check(z.trim(), z.minLength(2, 'Informe ao menos dois caracteres.'), z.maxLength(100))
+const email = z.email('Informe um e-mail válido.').check(z.trim(), z.toLowerCase(), z.maxLength(254))
+const senha = z.string().check(z.minLength(8, 'Use pelo menos oito caracteres.'), z.maxLength(128))
+const senhasIguais = z.refine<{ senha: string; confirmarSenha: string }>(dados => dados.senha === dados.confirmarSenha,
+  { path: ['confirmarSenha'], message: 'As senhas precisam ser iguais.' })
+
+export const login = z.object({ email, senha: z.string().check(z.minLength(1, 'Informe sua senha.'), z.maxLength(128)) })
+export const cadastro = z.object({ nome, email, senha, confirmarSenha: z.string() }).check(senhasIguais)
 export const perfil = z.object({
-  nome, email, usuario: z.string().trim().min(3).max(80).optional(),
-  nomeEns: z.string().trim().min(1).max(100).optional(), apelidoCarteira: z.string().trim().min(2).max(100).optional(),
-  biografia: z.string().max(350).default(''),
-  avatar: z.string().max(400_000).refine(v => !v || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/.test(v), 'Use uma imagem PNG, JPEG ou WebP.'),
+  nome, email, usuario: z.optional(z.string().check(z.trim(), z.minLength(3), z.maxLength(80))),
+  nomeEns: z.optional(z.string().check(z.trim(), z.minLength(1), z.maxLength(100))),
+  apelidoCarteira: z.optional(z.string().check(z.trim(), z.minLength(2), z.maxLength(100))),
+  biografia: z._default(z.string().check(z.maxLength(350)), ''),
+  avatar: z.string().check(z.maxLength(400_000),
+    z.refine(v => !v || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/.test(v), 'Use uma imagem PNG, JPEG ou WebP.')),
 })
-export const trocarSenha = z.object({ atual: z.string().min(1, 'Informe a senha atual.'), senha, confirmarSenha: z.string() })
-  .refine(v => v.senha === v.confirmarSenha, { path: ['confirmarSenha'], message: 'As senhas precisam ser iguais.' })
+export const trocarSenha = z.object({
+  atual: z.string().check(z.minLength(1, 'Informe a senha atual.')), senha, confirmarSenha: z.string(),
+}).check(senhasIguais)
 export const carteira = z.object({
-  nome, endereco: z.string().trim().min(3, 'Informe o endereço da carteira.'),
+  nome, endereco: z.string().check(z.trim(), z.minLength(3, 'Informe o endereço da carteira.')),
   rede: z.enum(redes), tipo: z.enum(['principal', 'secundaria']),
-}).refine(v => v.rede === 'Solana'
+}).check(z.refine(v => v.rede === 'Solana'
   ? /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(v.endereco)
   : /^(0x[0-9a-fA-F]{40}|[a-z0-9][a-z0-9.-]*\.eth)$/i.test(v.endereco),
-{ path: ['endereco'], message: 'Informe um endereço válido para a rede selecionada.' })
-export const conexao = z.object({ carteiraId: z.string().min(1), rede: z.enum(redes), provedor: z.enum(provedores) })
-export const item = z.object({ nftId: z.string().min(1), edicaoId: z.string().min(1), quantidade: z.number().int().min(1).max(999) })
-export const cupom = z.object({ codigo: z.string().trim().max(40).transform(v => v.toUpperCase()) })
-export const cotar = z.object({ rede: z.enum(redes).default('Ethereum') })
+{ path: ['endereco'], message: 'Informe um endereço válido para a rede selecionada.' }))
+const identificador = z.string().check(z.minLength(1))
+export const conexao = z.object({ carteiraId: identificador, rede: z.enum(redes), provedor: z.enum(provedores) })
+export const item = z.object({ nftId: identificador, edicaoId: identificador, quantidade: z.int().check(z.minimum(1), z.maximum(999)) })
+export const cupom = z.object({ codigo: z.string().check(z.trim(), z.maxLength(40), z.toUpperCase()) })
+export const cotar = z.object({ rede: z._default(z.enum(redes), 'Ethereum') })
 export const pedido = z.object({
-  cotacaoId: z.string().min(1), conexaoId: z.string().min(1), rede: z.enum(redes),
-  coletor: z.object({ nome, email, usuario: z.string().trim().min(3).max(80).optional(),
-    nomePerfil: z.string().trim().min(2).max(100).optional(),
-    indicacao: z.string().trim().min(1).max(60).optional(),
-    ens: z.string().trim().min(1).max(100).optional(), observacao: z.string().max(1000).optional() }),
+  cotacaoId: identificador, conexaoId: identificador, rede: z.enum(redes),
+  coletor: z.object({
+    nome, email, usuario: z.optional(z.string().check(z.trim(), z.minLength(3), z.maxLength(80))),
+    nomePerfil: z.optional(z.string().check(z.trim(), z.minLength(2), z.maxLength(100))),
+    indicacao: z.optional(z.string().check(z.trim(), z.minLength(1), z.maxLength(60))),
+    ens: z.optional(z.string().check(z.trim(), z.minLength(1), z.maxLength(100))),
+    observacao: z.optional(z.string().check(z.maxLength(1000))),
+  }),
 })
 export type Perfil = z.infer<typeof perfil> & { id: string }
 export type Sessao = { token: string; perfil: Perfil; expiraEm: number; avisos: string[] }

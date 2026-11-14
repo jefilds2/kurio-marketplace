@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import { cache, trocarSessao } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
-import { comProps, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
 import { erroDaApi, mercadoApi, salvarToken } from '../../integracoes/api'
+import html from '../../referencias/login.html?raw'
+
+const pagina = definirReferencia('login', html)
 
 export function AutenticacaoVisual({ acao, retorno }: { acao: 'login' | 'cadastro'; retorno: string }) {
   const cadastrar = acao === 'cadastro'
@@ -68,8 +72,16 @@ export function AutenticacaoVisual({ acao, retorno }: { acao: 'login' | 'cadastr
       const campo = node.attribs.name === 'confirmacao' ? 'confirmarSenha' : node.attribs.name
       const erroCampo = erro?.campos?.[campo]
       const label = campo === 'nome' ? 'Nome de usuário' : campo === 'email' ? 'E-mail' : campo === 'confirmarSenha' ? 'Confirmar senha' : campo === 'senha' ? 'Senha' : undefined
-      return comProps(node, { type: senhaAberta[id] ? 'text' : props.type, 'aria-label': label,
+      const entrada = comProps(node, { type: senhaAberta[id] ? 'text' : props.type, 'aria-label': label,
         'aria-invalid': !!erroCampo, 'aria-describedby': erroCampo ? 'login-aviso' : undefined })
+      if (id !== 'login-confirmar-senha') return entrada
+      return <div className="confirmar-senha-mobile">{entrada}
+        <button className="cadastro-olho absolute inset-y-0 right-2 w-8 items-center justify-center text-[#bc9558]"
+          type="button" aria-label={senhaAberta[id] ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
+          aria-pressed={!!senhaAberta[id]} onClick={() => setSenhaAberta(anterior => ({ ...anterior, [id]: !anterior[id] }))}>
+          {senhaAberta[id] ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
+        </button>
+      </div>
     }
     if (node.name === 'button' && node.attribs.type === 'submit') {
       const cadastro = node.parent?.type === 'tag' && 'attribs' in node.parent && node.parent.attribs.id === 'login-formulario-cadastro'
@@ -80,5 +92,5 @@ export function AutenticacaoVisual({ acao, retorno }: { acao: 'login' | 'cadastr
       aviso || (erro?.campos ? Object.values(erro.campos).join(' ') : erro?.mensagem ?? ''))
     return undefined
   }
-  return <Referencia pagina="login" alterar={visual} extras={<h1 className="sr-only">{cadastrar ? 'Criar perfil de colecionador' : 'Entrar'}</h1>} />
+  return <Referencia pagina={pagina} alterar={visual} extras={<h1 className="sr-only">{cadastrar ? 'Criar perfil de colecionador' : 'Entrar'}</h1>} />
 }

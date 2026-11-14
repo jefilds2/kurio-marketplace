@@ -4,13 +4,15 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { cache, carteirasConsulta } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
 import { Button, Erro, Janela, Resumo, Skeleton } from '../../componentes/ui'
-import { comProps, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
 import { exibirEth, pedido, provedores, redes, type Conexao, type Cotacao, type PedidoInput, type Rede, type Sessao } from '../../contratos/mercado'
 import { erroDaApi, mercadoApi, tokenAtual } from '../../integracoes/api'
 import { useCarrinhoMutation } from '../carrinho/estado'
 import { guardarTentativa, lerTentativa, type Tentativa } from './tentativa'
+import html from '../../referencias/pagamentos.html?raw'
 
-const itemVisual = modelo('pagamentos', 'pagamentos-modelo-item').children.find(n => n.type === 'tag')!
+const pagina = definirReferencia('pagamentos', html)
+const itemVisual = modelo(pagina, 'pagamentos-modelo-item').children.find(n => n.type === 'tag')!
 
 export function PagamentoVisual() {
   const { sessao } = useSessao()
@@ -83,15 +85,17 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     }
     try {
       const conectada = conexao ?? await ligar.mutateAsync({ carteiraId: carteira.id, rede, provedor })
-      const proposta = pedido.parse({ cotacaoId: cotacao.data.id, conexaoId: conectada.id, rede,
+      const validacao = pedido.safeParse({ cotacaoId: cotacao.data.id, conexaoId: conectada.id, rede,
         coletor: { nome: form.get('nomeExibicao'), email: form.get('email'), usuario: form.get('usuario'),
           nomePerfil: form.get('nomePerfil'), indicacao: form.get('indicacao'), ens: form.get('ens'),
           observacao: form.get('observacao') || undefined } })
-      setRevisao({ cotacao: cotacao.data, proposta })
+      if (!validacao.success) {
+        setAviso('Revise os dados do perfil do colecionador.')
+        return
+      }
+      setRevisao({ cotacao: cotacao.data, proposta: validacao.data })
       enviar.reset()
-    } catch (erro) {
-      if (erro instanceof Error && erro.name === 'ZodError') setAviso('Revise os dados do perfil do colecionador.')
-    }
+    } catch { /* As falhas de rede e conexão são exibidas pelo fluxo de revisão. */ }
   }
   const atual = cotacao.data
   const antiga = !!revisao && revisao.cotacao.id !== atual?.id
@@ -203,7 +207,7 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     if (id === 'pagamentos-ver-demo') return <></>
     return undefined
   }
-  return <Referencia pagina="pagamentos" alterar={visual} extras={<>
+  return <Referencia pagina={pagina} alterar={visual} extras={<>
     <div className="mx-auto max-w-[1200px] px-8">
       <Erro erro={enviar.error || pendente.error || cotacao.error || carteiras.error} />
       {tentativa?.pedidoId ? <Link className="link" to="/pedidos/$pedidoId" params={{ pedidoId: tentativa.pedidoId }}>Acompanhar pedido</Link>

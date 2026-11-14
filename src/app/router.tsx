@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createRootRoute, createRoute, createRouter, HeadContent, Link, Outlet, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { cache, sessaoConsulta, trocarSessao } from './consultas'
@@ -24,6 +24,7 @@ function Aplicacao() {
   const sessao = consulta.data ?? null
   const [aviso, setAviso] = useState('')
   const avisar = useCallback((mensagem: string) => setAviso(mensagem), [])
+  const contexto = useMemo(() => ({ sessao, avisar }), [sessao, avisar])
   const router = useRouter()
   useTempoReal(sessao?.token ?? '', sessao?.perfil.id ?? '', avisar)
   useEffect(() => {
@@ -41,7 +42,7 @@ function Aplicacao() {
     const timer = window.setTimeout(() => setAviso(''), 6500)
     return () => window.clearTimeout(timer)
   }, [aviso])
-  return <SessaoContexto.Provider value={{ sessao, avisar }}>
+  return <SessaoContexto.Provider value={contexto}>
     <HeadContent />
     <Suspense fallback={<Skeleton className="h-80" />}><Outlet /></Suspense>
     <div className="aviso-flutuante" role="status" aria-live="polite">{aviso}</div>

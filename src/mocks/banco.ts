@@ -28,11 +28,10 @@ export async function verificarSenha(senha: string, salt: string) {
   const bytes = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: encoder.encode(salt), iterations: 100_000, hash: 'SHA-256' }, chave, 256)
   return Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('')
 }
-export async function bancoInicial(cenario: Cenario = 'padrao'): Promise<Banco> {
-  const contas = Object.fromEntries(await Promise.all(demo.map(async perfil => {
-    const salt = 'kurio-demo-' + perfil.id
-    return [perfil.id, { perfil, salt, verificador: await verificarSenha('Kurio123!', salt), favoritos: [], carteiras: carteirasIniciais(perfil.id) }]
-  })))
+function bancoInicial(cenario: Cenario = 'padrao'): Banco {
+  const contas = Object.fromEntries(demo.map(({ perfil, verificador }) => [
+    perfil.id, { perfil, salt: 'kurio-demo-' + perfil.id, verificador, favoritos: [], carteiras: carteirasIniciais(perfil.id) },
+  ]))
   return {
     nfts: criarNfts(), contas, carrinhos: {}, sessoes: {}, cenario,
     conexoes: {}, pedidos: {}, tentativas: {}, reserva: {}, rastros: {}, pagamento: {},
@@ -44,7 +43,7 @@ const db = openDB<KurioDB>('kurio-simulacao', 1, {
 const inicializado = (async () => {
   const database = await db
   if (await database.get('dados', 'demo')) return
-  const seed = await bancoInicial()
+  const seed = bancoInicial()
   const tx = database.transaction('dados', 'readwrite')
   if (!(await tx.store.get('demo'))) await tx.store.put(seed, 'demo')
   await tx.done
@@ -70,7 +69,7 @@ export async function editarBanco<T>(acao: (banco: Banco) => T) {
   }
 }
 export async function resetBanco(cenario: Cenario) {
-  const seed = await bancoInicial(cenario)
+  const seed = bancoInicial(cenario)
   await inicializado
   const database = await db
   await database.put('dados', seed, 'demo')

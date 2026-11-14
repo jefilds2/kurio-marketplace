@@ -1,5 +1,5 @@
-import { cloneElement, createElement, Fragment, isValidElement, useState, type ReactNode } from 'react'
-import { attributesToProps, domToReact, type Element, htmlToDOM, type DOMNode, type HTMLReactParserOptions } from 'html-react-parser'
+import { createElement, Fragment, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { attributesToProps, type Element, htmlToDOM, type DOMNode } from 'html-react-parser'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { cache, carrinhoConsulta, trocarSessao } from '../app/consultas'
@@ -7,27 +7,25 @@ import { useSessao } from '../app/contexto'
 import { mercadoApi, salvarToken } from '../integracoes/api'
 import { Button, Janela } from './ui'
 import { NavegacaoMobile } from './NavegacaoMobile'
-import inicio from '../referencias/inicio.html?raw'
-import mercado from '../referencias/mercado.html?raw'
-import carrinho from '../referencias/carrinho.html?raw'
-import pagamentos from '../referencias/pagamentos.html?raw'
-import login from '../referencias/login.html?raw'
-import conta from '../referencias/minha-conta.html?raw'
-import confirmacao from '../referencias/confirmacao-pedido.html?raw'
 
-const paginas = { inicio, mercado, carrinho, pagamentos, login, conta, confirmacao }
-type Pagina = keyof typeof paginas
+type Documento = { classe?: string; nodes: DOMNode[] }
 export type Alterar = (node: Element, props: Record<string, unknown>, filhos: () => ReactNode) => ReactNode | undefined
-const documentos = new Map<Pagina, { classe?: string; nodes: DOMNode[] }>()
-function documento(pagina: Pagina) {
-  const pronto = documentos.get(pagina)
-  if (pronto) return pronto
-  const partes = /<body([^>]*)>([\s\S]*)<\/body>/i.exec(paginas[pagina])
-  if (!partes) throw new Error('Corpo da referência ausente: ' + pagina)
-  const novo = { classe: /class="([^"]*)"/.exec(partes[1])?.[1], nodes: htmlToDOM(partes[2]) }
-  documentos.set(pagina, novo)
-  return novo
+
+export function definirReferencia(nome: string, html: string) {
+  let documento: Documento | undefined
+  return {
+    nome,
+    documento() {
+      if (documento) return documento
+      const partes = /<body([^>]*)>([\s\S]*)<\/body>/i.exec(html)
+      if (!partes) throw new Error('Corpo da referência ausente: ' + nome)
+      documento = { classe: /class="([^"]*)"/.exec(partes[1])?.[1], nodes: htmlToDOM(partes[2]) }
+      return documento
+    },
+  }
 }
+type Pagina = ReturnType<typeof definirReferencia>
+
 const rotas: [RegExp, string][] = [
   [/^(?:\.\.\/|\.\/)?carrinho\/index\.html/, '/carrinho'],
   [/^(?:\.\.\/|\.\/)?pagamentos\/index\.html/, '/pagamento'],
@@ -56,9 +54,8 @@ export function ocultar(props: Record<string, unknown>, hidden: boolean) {
   return { hidden, className: (String(props.className ?? '').replace(/(?:^|\s)hidden(?=\s|$)/g, '') + (hidden ? ' hidden' : '')).trim() }
 }
 export function comProps(node: Element, props: Record<string, unknown>, filhos?: ReactNode) {
-  const atributos = attributesToProps(node.attribs, node.name)
-  const conteudo = filhos ?? (node.children.length ? domToReact(node.children as DOMNode[]) : undefined)
-  return createElement(node.name, { ...atributos, ...props }, conteudo)
+  const conteudo = filhos ?? renderizarNos(node.children as DOMNode[])
+  return createElement(node.name, { ...atributos(node), ...props }, conteudo)
 }
 export function encontrar(node: Element, busca: (n: Element) => boolean): Element | undefined {
   if (busca(node)) return node
@@ -70,53 +67,89 @@ export function encontrar(node: Element, busca: (n: Element) => boolean): Elemen
   }
 }
 export function modelo(pagina: Pagina, id: string) {
-  const { nodes } = documento(pagina)
+  const { nodes } = pagina.documento()
   for (const node of nodes) if (elemento(node)) {
     const resultado = encontrar(node, filho => filho.attribs.id === id)
     if (resultado) return resultado
   }
   throw new Error('Modelo visual ausente: ' + id)
 }
+const atributosPorNo = new WeakMap<Element, Record<string, unknown>>()
+const textoRestrito = new Set(['tr', 'tbody', 'thead', 'tfoot', 'colgroup', 'table', 'head', 'html', 'frameset'])
+const elementosInativos = new Set(['script', 'template', 'iframe'])
+
+function atributos(node: Element) {
+  const pronto = atributosPorNo.get(node)
+  if (pronto) return pronto
+  const props = attributesToProps(node.attribs, node.name) as Record<string, unknown>
+  atributosPorNo.set(node, props)
+  return props
+}
+
 export function renderizar(node: unknown, alterar: Alterar) {
-  return elemento(node) ? domToReact([node], opcoes(alterar)) : null
+  return elemento(node) ? renderizarNo(node, 0, alterar) : null
 }
-function opcoes(alterar: Alterar): HTMLReactParserOptions {
-  const options: HTMLReactParserOptions = {
-    replace(node) {
-      if (!elemento(node)) return
-      if (['script', 'template', 'iframe'].includes(node.name)) return <></>
-      if (Object.keys(node.attribs).some(nome => nome.startsWith('on'))) return <></>
-      return undefined
-    },
-    transform(reactNode, node) {
-      if (!elemento(node) || !isValidElement<Record<string, unknown>>(reactNode)) return typeof reactNode === 'string' ? reactNode : <>{reactNode}</>
-      if (['script', 'template', 'iframe'].includes(node.name)) return reactNode
-      const props = attributesToProps(node.attribs, node.name) as Record<string, unknown>
-      const filhos = () => (reactNode.props as { children?: ReactNode }).children
-      const modificado = alterar(node, props, filhos)
-      if (modificado !== undefined) return <Fragment key={reactNode.key}>{modificado}</Fragment>
-      if (node.name === 'img' && node.attribs.src) return cloneElement(reactNode, { src: imagemLocal(node.attribs.src) })
-      if (node.name === 'a' && node.attribs.href) {
-        const href = destinoLocal(node.attribs.href)
-        if (href) return <Link {...props} to={href as '/'}>{filhos()}</Link>
-        if (node.attribs.href === '#') return <span className={String(props.className ?? '')}>{filhos()}</span>
-      }
-      return reactNode
-    },
+
+function renderizarNos(nodes: DOMNode[], alterar?: Alterar): ReactNode {
+  const filhos = nodes.map((node, i) => renderizarNo(node, i, alterar))
+  return filhos.length <= 1 ? filhos[0] : filhos
+}
+
+function renderizarNo(node: DOMNode, key: number, alterar?: Alterar): ReactNode {
+  if (node.type === 'text') {
+    if (!node.data.trim() && elemento(node.parent) && textoRestrito.has(node.parent.name)) return null
+    return node.data
   }
-  return options
+  if (!elemento(node) || elementosInativos.has(node.name) || Object.keys(node.attribs).some(nome => nome.startsWith('on'))) return null
+
+  const props = atributos(node)
+  let conteudo: ReactNode
+  let avaliados = false
+  const filhos = () => {
+    if (!avaliados) {
+      conteudo = renderizarNos(node.children as DOMNode[], alterar)
+      avaliados = true
+    }
+    return conteudo
+  }
+  const resultado = alterar?.(node, props, filhos)
+  if (resultado !== undefined) return <Fragment key={key}>{resultado}</Fragment>
+  if (node.name === 'img' && node.attribs.src) {
+    return createElement(node.name, { ...props, key, src: imagemLocal(node.attribs.src) })
+  }
+  if (node.name === 'a' && node.attribs.href) {
+    const href = destinoLocal(node.attribs.href)
+    if (href) return <Link key={key} {...props} to={href as '/'}>{filhos()}</Link>
+    if (node.attribs.href === '#') return <span key={key} className={String(props.className ?? '')}>{filhos()}</span>
+  }
+  if (node.name === 'textarea' && node.children[0]?.type === 'text') {
+    return createElement(node.name, { ...props, key, defaultValue: node.children[0].data })
+  }
+  return createElement(node.name, { ...props, key }, filhos())
 }
+
+const viewportMobile = '(max-width: 600px)'
+const layoutMobile = () => matchMedia(viewportMobile).matches
+function observarLayout(notificar: () => void) {
+  const viewport = matchMedia(viewportMobile)
+  viewport.addEventListener('change', notificar)
+  return () => viewport.removeEventListener('change', notificar)
+}
+const cabecalhoERodapeOcultos = new Set(['inicio', 'mercado', 'carrinho', 'pagamentos'])
 
 export function Referencia({ pagina, alterar, extras, busca }: {
   pagina: Pagina; alterar: Alterar; extras?: ReactNode; busca?: { valor: string; mudar: (valor: string) => void }
 }) {
+  const mobile = useSyncExternalStore(observarLayout, layoutMobile)
   const [menu, setMenu] = useState(false)
   const [pesquisa, setPesquisa] = useState(false)
   const [buscaLocal, setBuscaLocal] = useState('')
   const { sessao, avisar } = useSessao()
   const pathname = useRouterState({ select: s => s.location.pathname })
   const navigate = useNavigate()
-  const dados = useQuery(carrinhoConsulta(sessao?.perfil.id ?? 'visitante'))
+  const ocultarEstrutura = mobile && cabecalhoERodapeOcultos.has(pagina.nome)
+  const mostraCarrinho = pagina.nome === 'inicio' || (!ocultarEstrutura && pagina.nome !== 'login')
+  const dados = useQuery({ ...carrinhoConsulta(sessao?.perfil.id ?? 'visitante'), enabled: mostraCarrinho })
   const qtd = dados.data?.linhas.reduce((soma, item) => soma + item.quantidade, 0) ?? 0
   const sair = useMutation({ mutationFn: mercadoApi.logout, onSuccess: async () => {
     salvarToken('')
@@ -128,6 +161,9 @@ export function Referencia({ pagina, alterar, extras, busca }: {
   const abrirCarrinho = () => void navigate({ to: '/carrinho' })
   const abrirConta = () => void navigate({ to: sessao ? '/conta/perfil' : '/login' })
   const navegador: Alterar = (node, props, filhos) => {
+    if (ocultarEstrutura && (temClasse(node, 'cabecalho') || temClasse(node, 'rodape-kurio') || node.attribs.id === 'menu-mobile')) {
+      return null
+    }
     const modificado = alterar(node, props, filhos)
     if (modificado !== undefined) return modificado
     const id = node.attribs.id
@@ -162,16 +198,17 @@ export function Referencia({ pagina, alterar, extras, busca }: {
     }
     return undefined
   }
-  return <div className={`design-kurio design-${pagina} ${documento(pagina).classe ?? ''}`}>
+  const { classe, nodes } = pagina.documento()
+  return <div className={`design-kurio design-${pagina.nome} ${classe ?? ''}`}>
     <a className="pular" href="#conteudo" onClick={() => document.getElementById('conteudo')?.focus()}>Ir para o conteúdo</a>
-    {domToReact(documento(pagina).nodes, opcoes((node, props, filhos) => {
+    {renderizarNos(nodes, (node, props, filhos) => {
       if (node.name === 'main' && node.attribs.id !== 'inicio') return navegarMain(node, filhos, navegador(node, props, filhos))
       const resultado = navegador(node, props, filhos)
       if (node.name === 'main' && node.attribs.id === 'inicio') return navegarMain(node, filhos, resultado)
       return resultado
-    }))}
+    })}
     {extras}
-    {pagina === "inicio" && <NavegacaoMobile quantidade={qtd} autenticado={!!sessao} />}
+    {mobile && pagina.nome === 'inicio' && <NavegacaoMobile quantidade={qtd} autenticado={!!sessao} />}
     <Janela titulo="Buscar NFTs" descricao="Explore coleções no catálogo da KURIO." aberta={pesquisa} aoMudar={setPesquisa}>
       <form className="flex flex-col gap-3" onSubmit={e => {
         e.preventDefault()

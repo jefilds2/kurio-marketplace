@@ -39,10 +39,13 @@ export function criarNfts(): Nft[] {
     ], versao: 1,
   }))
 }
+// Contas públicas de demonstração, com PBKDF2 da senha de teste Kurio123! e salt kurio-demo-{id}.
 export const demo = [
-  { id: 'ana', nome: 'Ana Souza', email: 'ana@kurio.test', biografia: '', avatar: '' },
-  { id: 'leo', nome: 'Leo Costa', email: 'leo@kurio.test', biografia: '', avatar: '' },
-] satisfies Perfil[]
+  { perfil: { id: 'ana', nome: 'Ana Souza', email: 'ana@kurio.test', biografia: '', avatar: '' },
+    verificador: 'b0bc10b60758577ca4b3e221a9b967cece6296b474823098dff1a8d9014fc668' },
+  { perfil: { id: 'leo', nome: 'Leo Costa', email: 'leo@kurio.test', biografia: '', avatar: '' },
+    verificador: '3a45c6b4de33ebeae4c8464707d1eeafc09efeb64d1ab3d08e42a3e89ea97dfa' },
+] satisfies { perfil: Perfil; verificador: string }[]
 export function carteirasIniciais(id: string): Carteira[] {
   return [
     { id: `${id}-principal`, nome: 'Principal', endereco: '0x' + (id === 'ana' ? 'a' : 'b').repeat(40), rede: 'Ethereum', tipo: 'principal' },

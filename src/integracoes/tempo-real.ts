@@ -20,8 +20,13 @@ export function useTempoReal(token: string, usuarioId: string, avisar: (mensagem
         versoes.set(chave, versao)
         return true
       }
+      let jaConectou = false
       function sincronizar() {
         conexao.emit('sessao', token)
+        if (!jaConectou) {
+          jaConectou = true
+          return
+        }
         void cache.invalidateQueries({ predicate: q =>
           ['catalogo', 'nft', 'carrinho'].includes(String(q.queryKey[0])) ||
           (q.queryKey[0] === 'privado' && q.queryKey[1] === usuarioId && ['pedido', 'pendente', 'cotacao'].includes(String(q.queryKey[2]))) })

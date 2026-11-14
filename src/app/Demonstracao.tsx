@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Settings2 } from 'lucide-react'
 import { cenarios, type Cenario } from '../contratos/mercado'
@@ -7,8 +8,9 @@ import { useSessao } from './contexto'
 import { Button, Campo, Erro, Janela } from '../componentes/ui'
 
 export function Demonstracao() {
+  const [aberto, setAberto] = useState(false)
   const { avisar } = useSessao()
-  const consulta = useQuery({ queryKey: ['cenario'], queryFn: mercadoApi.cenario, enabled: mocksAtivos })
+  const consulta = useQuery({ queryKey: ['cenario'], queryFn: mercadoApi.cenario, enabled: mocksAtivos && aberto })
   const acao = useMutation({ mutationFn: async (dados: { caminho: string; corpo?: unknown }) => api.post('/demo/' + dados.caminho, dados.corpo),
     onSuccess: (_, dados) => {
       if (dados.caminho === 'expirar') void cache.invalidateQueries({ queryKey: ['sessao'] })
@@ -31,9 +33,10 @@ export function Demonstracao() {
   if (!mocksAtivos) return null
   return <div className="demo-controle">
     <Janela titulo="Cenários de demonstração" descricao="Os cenários usam a API simulada e a conexão Socket.IO da aplicação."
+      aberta={aberto} aoMudar={setAberto}
       gatilho={<Button variant="outline"><Settings2 size={16} /> Cenários</Button>}>
       <div className="formulario">
-        <label className="campo">Cenário ativo<select className="entrada" disabled={alterar.isPending}
+        <label className="campo">Cenário ativo<select className="entrada" disabled={alterar.isPending || consulta.isPending}
           value={consulta.data ?? 'padrao'} onChange={e => alterar.mutate({ cenario: e.target.value as Cenario })}>
           {cenarios.map(nome => <option key={nome}>{nome}</option>)}</select></label>
         <div className="flex flex-wrap gap-2">

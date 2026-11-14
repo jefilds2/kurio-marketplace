@@ -54,6 +54,24 @@
 - **Correção:** reservar espaço depois do painel de demonstração somente na tela mobile com navegação inferior.
 - **Reteste:** teste de carregamento lento, recuperação de erro e mudança de cenário em Chromium mobile. [Trace da falha](../reports/traces/BUG-007-cenarios-mobile.zip).
 
+## BUG-008 · Paginação de NFTs relacionados não respondia
+
+- **Reprodução:** abrir o detalhe em desktop e acionar um dos três indicadores da seção Mais desta coleção.
+- **Correção:** usar a ordem, os deslocamentos e os cinco cartões do protótipo em `Desafio/mercado/interacoes.js`. A lista usa dados da API e carrega ao se aproximar da área visível.
+- **Reteste:** o teste de detalhe abre a seção, confere os cinco links e valida a mudança do cartão inicial e do estado do indicador.
+
+## BUG-009 · Espaçamentos e controles divergiam dos prints mobile
+
+- **Reprodução:** comparar as seis telas mobile com a área interna dos prints. A ficha do NFT tinha margens e corte diferentes, o carrinho tinha linhas mais baixas e o cadastro não exibia o controle de visibilidade da confirmação da senha.
+- **Correção:** aproximar as proporções a partir das áreas internas dos prints, ajustar botões, espaçamentos e ordem das edições e ligar o controle de senha ao campo correspondente. As fontes, imagens e HTMLs de referência seguem no projeto.
+- **Reteste:** snapshots Playwright e comparação lado a lado com os seis prints. As capturas também registram os valores e os estados dos dados da demonstração.
+
+## BUG-010 · A inicialização repetia trabalho antes da primeira pintura
+
+- **Reprodução:** abrir o catálogo ou detalhe com armazenamento limpo e inspecionar as consultas e o bundle.
+- **Correção:** usar Zod Mini, limitar o processamento ao HTML da página, carregar o estado de demonstração ao abrir o painel e fazer a reconciliação REST nos eventos de reconexão. Os mocks usam um verificador pré-calculado para as contas públicas de demonstração.
+- **Reteste:** suíte de fluxos incluindo login, cenários, dados persistidos, eventos e retomada de pedidos. As auditorias documentam o custo restante da inicialização.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

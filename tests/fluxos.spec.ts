@@ -69,6 +69,14 @@ test('detalhe direto, galeria, edição esgotada e recurso inexistente', async (
   if (await page.getByRole('button', { name: 'Visualizar imagem 2' }).isVisible()) {
     await page.getByRole('button', { name: 'Visualizar imagem 2' }).click()
     await expect(page.getByRole('button', { name: 'Visualizar imagem 2' })).toHaveAttribute('aria-pressed', 'true')
+    const colecao = page.getByRole('region', { name: 'Mais desta coleção' })
+    await colecao.scrollIntoViewIfNeeded()
+    await expect(colecao.getByRole('link')).toHaveCount(5)
+    const primeiroNft = await colecao.getByRole('link').first().getAttribute('href')
+    const primeiraPagina = colecao.getByRole('button', { name: 'Ver primeira página' })
+    await primeiraPagina.click()
+    await expect(primeiraPagina).toHaveAttribute('aria-pressed', 'true')
+    await expect(colecao.getByRole('link').first()).not.toHaveAttribute('href', primeiroNft!)
   }
   await page.getByRole('button', { name: '1/10 · Esgotada' }).click()
   await expect(page.getByRole('button', { name: 'Comprar NFT' })).toBeDisabled()

@@ -38,7 +38,7 @@ A simulação roda dentro do perfil do navegador e depende de HTTPS ou localhost
 
 ## Interface e referências
 
-As sete páginas HTML e as três folhas CSS de referência estão em `src/referencias`. São cópias dos arquivos de `Desafio`, verificadas por SHA-256. Os componentes React ligam dados, estados e ações à marcação original. O Tailwind compila as classes das referências no build.
+As sete páginas HTML e as três folhas CSS de referência estão em `src/referencias`. São cópias dos arquivos de `Desafio`, verificadas por SHA-256. Cada tela carrega sua referência HTML. Os componentes React ligam dados, estados e ações à marcação original e reutilizam os atributos convertidos de cada nó. O Tailwind compila as classes das referências no build. Zod Mini valida os contratos de busca, sessão e compra no cliente e nos mocks.
 
 Os prints mobile orientam a apresentação responsiva quando ela diverge do HTML desktop. As regras estão em `src/estilos/referencia.css`. As imagens são as quatro artes do backup visual, codificadas em WebP. Os preços, quantidades, informações de conta, ajustes de estoque e valores do recibo vêm do mock. A interface também expõe os estados funcionais exigidos no enunciado, incluindo revisão da compra, erros de formulário, carregamento, pedido pendente e recusa. As rotas de login e cadastro usam o HTML compartilhado de autenticação.
 

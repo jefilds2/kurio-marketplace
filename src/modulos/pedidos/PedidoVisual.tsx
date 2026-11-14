@@ -4,12 +4,14 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { cache } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
 import { Button, Erro, Janela, Skeleton } from '../../componentes/ui'
-import { comProps, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
 import { exibirEth } from '../../contratos/mercado'
 import { mercadoApi } from '../../integracoes/api'
 import { guardarTentativa, lerTentativa } from './tentativa'
+import html from '../../referencias/confirmacao-pedido.html?raw'
 
-const template = modelo('confirmacao', 'confirmacao-modelo-item').children.find(node => node.type === 'tag')!
+const pagina = definirReferencia('confirmacao', html)
+const template = modelo(pagina, 'confirmacao-modelo-item').children.find(node => node.type === 'tag')!
 
 export function PedidoVisual({ id }: { id: string }) {
   const { sessao } = useSessao()
@@ -63,7 +65,7 @@ export function PedidoVisual({ id }: { id: string }) {
     </div>))
     return undefined
   }
-  return <Referencia pagina="confirmacao" alterar={visual} extras={<Janela titulo="Explorador de transação simulado"
+  return <Referencia pagina={pagina} alterar={visual} extras={<Janela titulo="Explorador de transação simulado"
     descricao="Referência registrada no pedido da demonstração." aberta={explorador} aoMudar={setExplorador}>
       <p className="break-all">{pedido.transacao}</p><p>Rede {pedido.cotacao.rede}</p>
     </Janela>} />

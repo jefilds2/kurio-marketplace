@@ -3,14 +3,16 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { carrinhoConsulta } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
-import { comProps, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, modelo, ocultar, Referencia, renderizar, type Alterar } from '../../componentes/Referencia'
 import { Erro, Skeleton } from '../../componentes/ui'
 import { buscaCatalogo, exibirEth, type Linha } from '../../contratos/mercado'
 import { erroDaApi, mercadoApi } from '../../integracoes/api'
 import { CartaoVisual } from '../catalogo/CatalogoVisual'
 import { useCarrinhoMutation } from './estado'
+import html from '../../referencias/carrinho.html?raw'
 
-const template = modelo('carrinho', 'carrinho-modelo-item').children.find(node => node.type === 'tag')!
+const pagina = definirReferencia('carrinho', html)
+const template = modelo(pagina, 'carrinho-modelo-item').children.find(node => node.type === 'tag')!
 
 export function CarrinhoVisual() {
   const { sessao } = useSessao()
@@ -61,7 +63,7 @@ export function CarrinhoVisual() {
     }
     return undefined
   }
-  return <Referencia pagina="carrinho" alterar={visual} />
+  return <Referencia pagina={pagina} alterar={visual} />
 }
 function LinhaVisual({ linha, pendente, alterar, remover }: { linha: Linha; pendente: boolean; alterar: (q: number) => void; remover: () => void }) {
   return renderizar(template, (node, props, filhos) => {

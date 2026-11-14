@@ -22,13 +22,13 @@
   .referencia-busca-mobile > svg { position: absolute; top: 40px; left: 12px; color: #ba9a7c; }
   .referencia-busca-mobile input { min-width: 0; flex: 1; height: 43px; padding: 0 8px 0 36px; border-radius: 10px; color: #ba9a7c; background: #271914; font-size: 12px; }
   .referencia-busca-mobile button { min-width: 43px; padding: 8px; border-radius: 12px; background: linear-gradient(120deg,#9a6038,#d18b4b); }
-  .design-inicio .banner { position: relative; display: grid; grid-template-columns: 1.35fr 1fr; align-items: start; gap: 10px; padding: 10px 14px 25px; margin: 14px 0 12px; border-radius: 26px; background: radial-gradient(circle at 5% 10%, #895e3b, #312012 73%); }
+  .design-inicio .banner { position: relative; display: grid; grid-template-columns: 1.35fr 1fr; align-items: start; gap: 10px; padding: 10px 14px 36px; margin: 14px 0 12px; border-radius: 26px; background: radial-gradient(circle at 5% 10%, #895e3b, #312012 73%); }
   .design-inicio .conteudo-banner { position: static; padding: 0; }
-  .design-inicio .boas-vindas { font-size: 10px; }
+  .design-inicio .boas-vindas { font-size: 11px; font-weight: 400; }
   .design-inicio .titulo-principal { margin-top: 6px; font-size: 16px; line-height: 1.55; }
   .referencia-titulo-desktop { display: none; }
   .referencia-titulo-mobile { display: inline; }
-  .design-inicio .descricao { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; font-size: 10px; line-height: 1.5; margin-top: 4px; }
+  .design-inicio .descricao { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; max-width: 27ch; font-size: 11px; line-height: 1.5; margin-top: 4px; }
   .design-inicio .botao-explorar { margin: 0; padding: 0; border: 0; background: transparent; color: #d9904b; font-size: 10px; }
   .design-inicio .botao-explorar::after { content: " →"; }
   .design-inicio .indicadores-banner { position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); margin: 0; padding: 0; gap: 4px; }
@@ -39,19 +39,19 @@
   .design-inicio .referencia-filtros, .design-inicio .secao-diario, .design-inicio #criadores { display: none; }
   .design-inicio .barra-catalogo { margin-bottom: 12px; gap: 6px; flex-wrap: wrap; }
   .design-inicio .abas-nfts { gap: 9px; }
-  .design-inicio .aba-nft { font-size: 10px; padding-bottom: 2px; }
+  .design-inicio .aba-nft { font-size: 12px; padding-bottom: 2px; }
   .design-inicio .ordenacao { margin-left: auto; font-size: 10px; }
   .design-inicio .seletor-ordenacao { max-width: 125px; }
   .design-inicio .grade-nfts { gap: 18px 13px; }
-  .design-inicio .card-nft:nth-child(even) { margin-top: 20px; }
-  .design-inicio .fundo-imagem-nft { padding: 10px 4px 15px; border-radius: 17px; }
+  .design-inicio .card-nft:nth-child(even) { margin-top: 29px; }
+  .design-inicio .fundo-imagem-nft { padding: 10px 4px 15px; border-radius: 20px; }
   .design-inicio .nome-nft { margin: 8px 4px 0; }
   .design-inicio .preco-nft { margin-inline: 4px; }
   .design-inicio .adicionar-carrinho { display: none; }
   .referencia-favorito-mobile { position: absolute; z-index: 2; top: 11px; right: 9px; display: grid; place-items: center; width: 27px; height: 27px; color: #d9904b; background: #3b2517; border-radius: 50%; }
-  .referencia-nav-mobile { display: flex; position: fixed; inset: auto 0 0; z-index: 45; justify-content: space-around; align-items: center; min-height: 70px; padding: 7px 10px max(env(safe-area-inset-bottom),7px); border-radius: 24px 24px 0 0; background: #271914; color: #c5a785; }
+  .referencia-nav-mobile { display: flex; position: fixed; inset: auto 0 0; z-index: 45; justify-content: space-around; align-items: center; min-height: 88px; padding: 7px 10px max(env(safe-area-inset-bottom),7px); border-radius: 24px 24px 0 0; background: #271914; color: #c5a785; }
   .referencia-nav-mobile a { display: grid; place-items: center; min-width: 43px; min-height: 43px; }
-  .referencia-nav-centro { background: linear-gradient(135deg,#ad7142,#d9904b); color: #f5f1eb; border-radius: 50%; transform: translateY(-22px); }
+  .referencia-nav-centro { background: linear-gradient(135deg,#ad7142,#d9904b); color: #f5f1eb; border-radius: 50%; width: 60px; height: 60px; transform: translateY(-35px); }
   .design-inicio + .aviso-flutuante { bottom: 80px; }
   .design-mercado .mercado-galeria { grid-template-columns: minmax(0,1fr); gap: 6px; }
   .design-mercado #mercado-miniaturas { order: 1; flex-direction: row; }
@@ -102,21 +102,27 @@
   .detalhe-mobile-topo { display: flex; justify-content: space-between; margin: 17px 7px 8px; }
   .detalhe-mobile-topo a, .detalhe-mobile-topo button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: #d9904b; background: #3b2517; }
   .design-mercado .mercado-topo { display: flex; flex-direction: column; background: #271914; border-radius: 22px; overflow: hidden; }
-  .design-mercado .mercado-galeria > div:has(#mercado-imagem-principal) { padding: 0 10px; }
-  .design-mercado #mercado-imagem-principal { width: 100%; aspect-ratio: 1.1; object-position: center 43%; }
-  .design-mercado .mercado-resumo { position: relative; padding: 16px 16px 18px; margin-top: -8px; }
-  .design-mercado #mercado-resumo-descricao { line-height: 1.7; }
+  .design-mercado .pagina { padding-inline: 0; background: #271914; }
+  .design-mercado .detalhe-mobile-topo { margin: 20px 25px 8px; }
+  .design-mercado .mercado-galeria > div:has(#mercado-imagem-principal) { padding: 0 25px; }
+  .design-mercado #mercado-imagem-principal { width: 100%; aspect-ratio: 1.1; object-position: center 31%; border-radius: 22px 22px 0 0; }
+  .design-mercado .mercado-resumo { position: relative; padding: 29px 22px 29px; margin-top: -8px; border-radius: 24px 24px 0 0; background: #241610; }
+  .design-mercado #mercado-resumo-descricao { margin-top: 0; line-height: 1.75; }
   .design-mercado .mercado-resumo h2:not(:has(+ div)) { display: none; }
-  .design-mercado .mercado-resumo > div:has(#mercado-preco-nft) { position: absolute; top: 9px; right: 15px; margin: 0; padding: 0; border-width: 0; }
+  .design-mercado .mercado-resumo > div:has(#mercado-preco-nft) { position: absolute; top: 27px; right: 22px; margin: 0; padding: 0; border-width: 0; }
   .detalhe-desktop-preco, .detalhe-desktop-avaliacao, .detalhe-desktop-compra,
   .design-mercado #mercado-favoritar, .design-mercado .mercado-resumo > div:has([data-compartilhar]) { display: none; }
   .detalhe-mobile-avaliacao { display: inline; padding: 2px 4px; color: #e6a15f; border: 1px solid #d9904b; border-radius: 20px; font-size: 11px; }
   .detalhe-mobile-qtd, .detalhe-mobile-compra { display: inline; }
   .detalhe-mobile-preco { display: block; align-self: center; grid-area: preco; color: #d9904b; justify-self: end; }
-  .design-mercado .referencia-compra-nft { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "quantidade preco" "acoes acoes"; margin: 0; padding-top: 14px; border-top: 1px solid #36241c; }
+  .design-mercado .referencia-compra-nft { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "quantidade preco" "acoes acoes"; margin: 0; padding-top: 14px; border-top: 0; }
   .design-mercado .mercado-resumo { display: flex; flex-direction: column; }
   .design-mercado .mercado-resumo dl { margin-top: 8px; }
-  .design-mercado .referencia-compra-nft { order: 1; margin-top: 16px; }
+  .design-mercado .referencia-compra-nft { order: 1; margin-top: 26px; }
+  .design-mercado .referencia-compra-nft [aria-label="Quantidade de NFTs"] { gap: 9px; }
+  .detalhe-mobile-qtd { color: #ba9a7c; font-size: 13px; }
+  .design-mercado #mercado-comprar { width: 184px; min-height: 54px; background: linear-gradient(100deg,#d9904b,#b47843); }
+  .design-mercado .referencia-adicionar { width: 54px; height: 54px; }
   .design-mercado .referencia-acoes-nft { grid-area: acoes; gap: 10px; }
   .design-mercado #mercado-diminuir, .design-mercado #mercado-aumentar { height: 23px; width: 16px; font-size: 14px; }
   .design-mercado .referencia-adicionar { width: 45px; height: 45px; border-radius: 50%; background: #3b2517; }
@@ -149,7 +155,17 @@
 .cadastro-mobile-texto { display: none; }
 @media (max-width: 600px) {
   .design-login .login-fechar { display: none; }
-  .design-login .login-conteudo input { height: 46px; background: transparent; font-size: 13px; }
+  .design-login .login-conteudo input { height: 46px; padding-left: 14px; border-radius: 9px; background: transparent; font-size: 13px; }
+  .design-login #login-senha::placeholder { color: #f5f1eb; }
+  .design-login #login-formulario-entrar, .design-login #login-formulario-cadastro { gap: 11px; }
+  .design-login .login-botao-primario, .design-login .cadastro-botao {
+    height: 56px; margin-top: 22px; border-radius: 9px; background: #d9904b; font-size: 14px;
+  }
+  .design-login .login-divisor, .design-login .cadastro-divisor { margin: 35px auto 8px; font-size: 12px; gap: 10px; }
+  .design-login .login-olho { right: 6px; }
+  .design-login .login-olho svg, .design-login .cadastro-olho svg { width: 15px; height: 15px; }
+  .design-login .login-social, .design-login .cadastro-social { border-radius: 4px; }
+  .referencia-alternar-login { margin-top: 36px; }
   .design-login .login-conteudo input::placeholder { color: #a88358; }
   .design-login .login-social, .design-login .cadastro-social { background: transparent; }
   .design-login .login-social svg, .design-login .cadastro-social svg { width: 18px; height: 18px; }
@@ -165,7 +181,7 @@
   .design-inicio .grade-nfts[data-grade-inicial=true] [data-nft-id=nft-06],
   .design-inicio .grade-nfts[data-grade-inicial=true] [data-nft-id=nft-07] { order: 1; }
   .design-inicio .grade-nfts[data-grade-inicial=true] [data-nft-id=nft-06] { margin-top: 0; }
-  .design-inicio .grade-nfts[data-grade-inicial=true] [data-nft-id=nft-07] { margin-top: 20px; }
+  .design-inicio .grade-nfts[data-grade-inicial=true] [data-nft-id=nft-07] { margin-top: 29px; }
   .design-inicio .referencia-nft-raro { display: block; position: absolute; left: 0; top: 12px;
     background: #d9904b; color: #150e0b; padding: 5px 10px; font-weight: 700; font-size: 11px; }
   .design-inicio [data-nft-id=nft-01] .referencia-nft-raro { display: none; }
@@ -178,10 +194,12 @@
 @media (max-width: 600px) {
   .design-login .login-abas [data-aba=cadastro][data-selecionada=true] .cadastro-mobile-texto { display: inline; }
   .design-login .login-abas [data-aba=cadastro] .cadastro-desktop-texto { display: none; }
-  .design-login .login-conteudo { padding-top: 117px; }
+  .design-login .login-conteudo { padding-top: 119px; }
+  .design-login .login-abas { margin-bottom: 32px; }
+  .design-login .login-modal[data-tela=cadastro] .login-conteudo { padding-top: 116px; }
   .design-login #login-nome { text-align: center; }
-  .design-pagamentos #pagina-pagamentos { min-height: calc(100dvh - 2px); }
-  .design-pagamentos #pagamentos-confirmar { margin-bottom: 18px; }
+  .design-pagamentos #pagina-pagamentos { min-height: 100dvh; }
+  .design-pagamentos #pagamentos-confirmar { margin-bottom: 29px; }
   .checkout-mobile-carteiras input[type=radio], .checkout-mobile-radio {
     appearance: none; width: 13px; height: 13px; flex: 0 0 13px; border: 1px solid #624126; border-radius: 50%;
   }
@@ -189,23 +207,42 @@
     border-color: #d9904b; background: radial-gradient(circle, #d9904b 0 35%, transparent 40%);
   }
   .design-pagamentos #pagamentos-carteiras > label { border-color: #36241c; }
+  .design-carrinho .pagina { padding-inline: clamp(16px, 6.5vw, 27px); }
+  .design-carrinho .referencia-titulo-fluxo, .design-pagamentos .referencia-titulo-fluxo { margin: 28px 0 20px; }
   .design-carrinho .carrinho-linha {
-    position: relative; grid-template-columns: minmax(0,1fr) auto; grid-template-rows: minmax(79px,auto);
-    gap: 0 8px; min-height: 79px; padding: 0 11px 0 0; overflow: hidden;
+    position: relative; grid-template-columns: minmax(0,1fr) auto; grid-template-rows: minmax(94px,auto);
+    gap: 0 8px; min-height: 94px; padding: 0 11px 0 0; overflow: hidden;
   }
   .design-carrinho .carrinho-linha [data-carrinho-link] { position: relative; align-self: stretch; grid-column: 1; grid-row: 1; align-items: start; gap: 9px; }
-  .design-carrinho .carrinho-linha [data-carrinho-link] img { width: 78px; height: 100%; min-height: 79px; border-radius: 10px 0 0 10px; }
+  .design-carrinho .carrinho-linha [data-carrinho-link] img { width: 94px; height: 100%; min-height: 94px; border-radius: 10px 0 0 10px; }
   .design-carrinho .carrinho-linha [data-carrinho-link] div { padding: 8px 0 24px; }
-  .design-carrinho .linha-mobile-preco { display: block; position: absolute; left: 87px; bottom: 7px; color: #d9904b; font-size: 14px; }
+  .design-carrinho .carrinho-linha [data-carrinho-link] strong { font-size: 13px; }
+  .design-carrinho .linha-mobile-preco { display: block; position: absolute; left: 103px; bottom: 8px; color: #d9904b; font-size: 16px; }
+  .design-carrinho #carrinho-lista { gap: 17px; }
   .design-carrinho .carrinho-linha [data-carrinho-total-item] { display: none; }
   .design-carrinho .carrinho-linha [aria-label="Editar edições"] { grid-column: 2; grid-row: 1; margin-right: 18px; gap: 4px; }
   .design-carrinho .carrinho-linha [aria-label="Editar edições"] button { width: 20px; height: 20px; background: #3b2517; color: #f5f1eb; }
   .design-carrinho .carrinho-linha [data-carrinho-remover] { position: absolute; right: 4px; bottom: 2px; width: 22px; height: 24px; }
   .design-carrinho .carrinho-area { gap: 7px; }
-  .design-carrinho .carrinho-resumo { padding: 18px 14px; }
+  .design-carrinho .carrinho-resumo { margin-inline: calc(-1 * clamp(16px, 6.5vw, 27px)); padding: 22px clamp(16px, 6vw, 24px) 32px; border-radius: 34px 34px 0 0; }
+  .design-carrinho #carrinho-finalizar, .design-pagamentos #pagamentos-confirmar {
+    min-height: 54px; border-radius: 29px; background: linear-gradient(100deg,#d9904b,#b47843);
+  }
+  .design-pagamentos .pagina-pagamentos { padding-inline: clamp(16px, 6.5vw, 27px); }
+  .checkout-mobile-carteiras label { min-height: 86px; }
+  .checkout-mobile-carteiras fieldset { gap: 17px; }
+  .design-pagamentos #pagamentos-carteiras { gap: 15px; }
+  .design-pagamentos #pagamentos-carteiras > label { min-height: 61px; }
   .design-carrinho #carrinho-formulario-cupom { margin-bottom: 8px; }
   .design-carrinho #carrinho-total { font-size: 15px; }
   .design-carrinho #carrinho-titulo-resumo, .design-carrinho label[for=carrinho-codigo], .design-carrinho #carrinho-finalizar + a { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .design-carrinho #carrinho-codigo { border-radius: 25px 0 0 25px; border-color: #36241c; background: transparent; }
   .design-carrinho #carrinho-aplicar { border-radius: 25px; }
+}
+
+.confirmar-senha-mobile { display: contents; }
+.confirmar-senha-mobile > button { display: none; }
+@media (max-width: 600px) {
+  .confirmar-senha-mobile { display: block; position: relative; }
+  .confirmar-senha-mobile > button { display: flex; }
 }
