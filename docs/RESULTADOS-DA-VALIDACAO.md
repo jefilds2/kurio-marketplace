@@ -1,20 +1,24 @@
 # Resultados da validação do KURIO
 
-Build otimizado servido localmente, com os mocks habilitados e o cenário padrão. Três medições Lighthouse por página e perfil.
+Build otimizado servido localmente, com MSW habilitado e cenário padrão. O Lighthouse fez três medições por página e perfil com suas configurações padrão de simulação.
 
-Lighthouse 13.6.0, Chromium 157 headless, Node v26.11.1 e Windows 10.0.26300 em AMD Ryzen 5 7535HS.
+Lighthouse 13.6.0, Chrome 157 headless, Node v26.11.1 e Windows 10.0.26300 em AMD Ryzen 5 7535HS.
 
 | Página | Performance | Acessibilidade | Boas práticas | SEO | LCP | CLS | TBT |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Início mobile | 81 | 96 | 96 | 100 | 4,36 s | 0,000 | 206 ms |
-| Início desktop | 99 | 96 | 96 | 100 | 0,88 s | 0,002 | 6 ms |
-| Detalhe mobile | 70 | 100 | 96 | 100 | 4,23 s | 0,007 | 608 ms |
-| Detalhe desktop | 99 | 97 | 96 | 100 | 0,94 s | 0,001 | 42 ms |
+| Início mobile | 77 | 96 | 96 | 100 | 4,31 s | 0,000 | 371 ms |
+| Início desktop | 99 | 96 | 96 | 100 | 0,90 s | 0,002 | 10 ms |
+| Detalhe mobile | 78 | 100 | 96 | 100 | 4,12 s | 0,027 | 357 ms |
+| Detalhe desktop | 99 | 97 | 96 | 100 | 0,88 s | 0,001 | 8 ms |
 
-Performance mobile ficou abaixo da meta 90. O Lighthouse mediu atraso na apresentação da imagem principal e tempo de bloqueio durante a inicialização do aplicativo, incluindo a camada de mocks e a transformação da marcação em elementos React. As demais categorias alcançaram as metas do enunciado.
+As metas do desafio são 90 para performance e SEO e 95 para acessibilidade e boas práticas. No mobile, o atraso na exibição da maior imagem e o bloqueio da thread principal pesaram na nota de performance. A auditoria registra a inicialização do aplicativo, a camada de mocks e a construção da interface. Os relatórios HTML e JSON contêm as medições e os diagnósticos individuais.
 
-Os relatórios HTML/JSON contêm medições individuais, ambiente e diagnósticos. O script reproduzível está em `scripts/audit.mjs`.
+## Testes e referências
 
-## Fidelidade visual
+Playwright em Chromium teve 33 testes aprovados e zero falhas. A repetição do teste de tablet no perfil mobile foi omitida, pois o mesmo teste rodou em 768 px no perfil desktop. Os oito snapshots das quatro telas principais estão em tests/visual.spec.ts-snapshots.
 
-Sete HTMLs e três CSS reproduzem byte a byte os arquivos da pasta Desafio em `src/referencias`. O layout mobile foi conferido com os seis prints fornecidos. O comparativo lado a lado mostra diferenças de espaçamento, enquadramento das artes e dados simulados. As baselines automatizadas medem regressões do build e a comparação com os prints foi feita visualmente.
+Sete HTMLs e três CSS em src/referencias reproduzem byte a byte os arquivos da pasta Desafio. O layout mobile foi comparado com os seis prints fornecidos. O comparativo mostra diferenças de espaçamento, enquadramento e dados simulados entre o build e a referência. As baselines automatizadas verificam regressões do build.
+
+## Publicação
+
+Os arquivos de deploy estão em dist/ e no ZIP para upload manual. O repositório Git local e o build estão disponíveis na pasta Desktop/KURIO. O envio pelo GitHub e a publicação pública no Netlify seguem manuais.
