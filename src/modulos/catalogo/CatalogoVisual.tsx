@@ -161,8 +161,19 @@ export const CartaoVisual = memo(function CartaoVisual({ nft, posicao, adicionar
   catalogo ??= modelo(pagina, 'mercado')
   const cartao = encontrar(catalogo, node => node.attribs['data-nft-id'] === modeloId)
   if (!cartao) return null
+  const nome = <Link to="/nfts/$nftId" params={{ nftId: nft.id }}>{nft.nome}</Link>
+  const preco = <>{exibirEth(nft.edicoes[0].preco)}
+    {!nft.edicoes[0].estoque && <span className="sr-only"> · Edição esgotada</span>}</>
+  const semDadosVisuais = !encontrar(cartao, node => temClasse(node, 'nome-nft'))
   return renderizar(cartao, (node, _props, filhos) => {
-    if (node === cartao) return comProps(node, { 'data-nft-id': nft.id, 'data-raro': nft.destaque === 'Raro' }, filhos())
+    if (node === cartao) {
+      return comProps(node, { 'data-nft-id': nft.id, 'data-raro': nft.destaque === 'Raro' }, <>{filhos()}
+        {semDadosVisuais && <div className="referencia-dados-nft-mobile">
+          <p className="nome-nft truncate">{nome}</p>
+          <p className="preco-nft text-[13px] font-bold text-kurio-destaque min-[501px]:text-[15px]">{preco}</p>
+        </div>}
+      </>)
+    }
     if (temClasse(node, 'fundo-imagem-nft')) return comProps(node, {}, <>{filhos()}
       {nft.destaque === 'Raro' && <span className="referencia-nft-raro">RARO</span>}
       <button type="button" className="referencia-favorito-mobile" aria-pressed={favorito.ativo}
@@ -173,11 +184,10 @@ export const CartaoVisual = memo(function CartaoVisual({ nft, posicao, adicionar
       {comProps(node, { src: nft.imagens[0], alt: nft.nome, loading: posicao < 7 ? 'eager' : 'lazy' })}
     </Link>
     if (temClasse(node, 'preco-antigo')) return comProps(node, {}, filhos())
-    if (temClasse(node, 'nome-nft')) return comProps(node, {}, <Link to="/nfts/$nftId" params={{ nftId: nft.id }}>{nft.nome}</Link>)
+    if (temClasse(node, 'nome-nft')) return comProps(node, {}, nome)
     if (temClasse(node, 'preco-nft')) {
       const antigo = encontrar(node, item => temClasse(item, 'preco-antigo'))
-      return comProps(node, {}, <>{exibirEth(nft.edicoes[0].preco)}
-        {!nft.edicoes[0].estoque && <span className="sr-only"> · Edição esgotada</span>}
+      return comProps(node, {}, <>{preco}
         {antigo && nft.id === modeloId && <> {comProps(antigo, {}, texto(antigo))}</>}</>)
     }
     if (temClasse(node, 'adicionar-carrinho')) return adicionar ? comProps(node, { onClick: adicionar, disabled: !nft.edicoes[0].estoque, 'aria-label': `Adicionar ${nft.nome} ao carrinho` }, filhos()) : <></>

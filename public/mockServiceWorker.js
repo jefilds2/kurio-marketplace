@@ -4,7 +4,7 @@
 /**
  * Mock Service Worker.
  * @see https://github.com/mswjs/msw
- * - Please do NOT modify this file.
+ * KURIO retains one local patch in passthrough().
  */
 
 const PACKAGE_VERSION = '2.15.0'
@@ -247,7 +247,8 @@ async function getResponse(event, client, requestId, requestInterceptedAt) {
       }
     }
 
-    return fetch(requestClone, { headers })
+    // KURIO: keep a failed passthrough as a network error without rejecting respondWith().
+    return fetch(requestClone, { headers }).catch(() => Response.error())
   }
 
   // Bypass mocking when the client is not active.

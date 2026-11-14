@@ -208,7 +208,7 @@ export function Referencia({ pagina, alterar, extras, busca }: {
       return resultado
     })}
     {extras}
-    {mobile && pagina.nome === 'inicio' && <NavegacaoMobile quantidade={qtd} autenticado={!!sessao} />}
+    {mobile && pagina.nome === 'inicio' && <NavegacaoMobile quantidade={qtd} />}
     <Janela titulo="Buscar NFTs" descricao="Explore coleções no catálogo da KURIO." aberta={pesquisa} aoMudar={setPesquisa}>
       <form className="flex flex-col gap-3" onSubmit={e => {
         e.preventDefault()
@@ -221,7 +221,7 @@ export function Referencia({ pagina, alterar, extras, busca }: {
         <Button type="submit">Buscar</Button>
       </form>
     </Janela>
-    {pathname === '/conta/perfil' && sessao && <div className="mx-auto max-w-[1200px] px-8 pb-6">
+    {!mobile && pathname === '/conta/perfil' && sessao && <div className="mx-auto max-w-[1200px] px-8 pb-6">
       <Button variant="outline" onClick={() => sair.mutate()} disabled={sair.isPending}>Sair da conta</Button>
     </div>}
   </div>

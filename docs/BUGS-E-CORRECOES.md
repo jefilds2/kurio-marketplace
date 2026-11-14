@@ -120,6 +120,23 @@
 - **Correção:** usar o relógio do Playwright. Após verificar que o pedido segue pendente no refresh, avançar a data e acionar Consultar status. O teste confirma o recibo pela API, com a mesma URL de pedido.
 - **Reteste:** cenário isolado em desktop e mobile. [Trace da falha](../reports/traces/BUG-018-pedido-pendente.zip)
 
+## BUG-019 · Falha de rede fora dos mocks aparecia como exceção do Service Worker
+
+O navegador mostrava `Uncaught (in promise) TypeError: Failed to fetch` em `passthrough` mesmo com Cenários em Normal. Uma solicitação sem mock para um domínio indisponível reproduziu a mesma pilha no Chromium.
+
+O worker mantém a falha de rede original e devolve uma resposta de erro ao navegador. Assim, o recurso continua reportando sua falha e o Service Worker conclui a interceptação sem uma promessa rejeitada. A configuração de cópia automática do MSW foi removida para preservar esse ajuste após `npm ci`. Ao atualizar o MSW, confira o worker gerado e reaplique o tratamento de `passthrough` caso a versão ainda lance essa exceção.
+
+O teste de reprodução confirmou que o erro de rede chega à página e que o worker deixa de lançar a exceção. O catálogo voltou a carregar após alternar de Falha de conexão para Normal.
+
+O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No cenário Normal, o catálogo, o login, a edição do perfil e o acesso às carteiras terminaram sem erros de console nem falhas de rede. Uma conexão interrompida de propósito continuou sendo detectada pelo navegador e o DevTools Protocol registrou zero exceções no worker.
+
+## BUG-020 · Cards desalinhados e acesso à conta no mobile
+
+- **Reprodução:** abra a página inicial no celular e compare as imagens nas duas colunas. Entre pela navegação inferior e acesse o perfil.
+- **Causa:** margens verticais alternadas deslocavam uma coluna da grade. A conta exibia o cabeçalho e a navegação lateral da referência de desktop.
+- **Correção:** nivelar as imagens e mostrar nome e preço em todos os cards do catálogo mobile. A tela Minha conta usa um menu compacto com os acessos a perfil, carteiras, favoritos e saída.
+- **Reteste:** suíte Playwright com verificação da grade e navegação pela conta.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

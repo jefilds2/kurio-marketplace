@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { ChevronLeft, Heart } from 'lucide-react'
 import { cache, carteirasConsulta, perfilConsulta } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
-import { comProps, definirReferencia, ocultar, Referencia, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, ocultar, Referencia, temClasse, type Alterar } from '../../componentes/Referencia'
 import { erroDaApi, mercadoApi } from '../../integracoes/api'
 import type { Carteira } from '../../contratos/mercado'
 import html from '../../referencias/minha-conta.html?raw'
@@ -52,10 +53,25 @@ export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
     const id = node.attribs.id
     const nome = node.attribs.name
     const aba = node.attribs['data-conta-aba']
+    if (temClasse(node, 'conta-menu-lateral')) {
+      return comProps(node, {}, <>
+        <header className="referencia-titulo-fluxo">
+          <Link to="/" aria-label="Voltar ao início"><ChevronLeft size={18} /></Link>
+          <h1>Minha conta</h1>
+        </header>
+        {filhos()}
+      </>)
+    }
     if (id === 'conta-formulario-perfil' && perfil.isPending) return <div className="skeleton h-48" />
     if (aba === 'perfil' || aba === 'carteiras') {
-      const ativa = carteiras === (aba === 'carteiras')
-      return comProps(node, { 'data-ativo': String(ativa), onClick: () => void navigate({ to: aba === 'carteiras' ? '/conta/carteiras' : '/conta/perfil' }) }, filhos())
+      const abaCarteiras = aba === 'carteiras'
+      const ativa = carteiras === abaCarteiras
+      const botao = comProps(node, {
+        'data-ativo': String(ativa), 'aria-current': ativa ? 'page' : undefined,
+        onClick: () => void navigate({ to: abaCarteiras ? '/conta/carteiras' : '/conta/perfil' }),
+      }, filhos())
+      if (!abaCarteiras) return botao
+      return <>{botao}<Link className="conta-favoritos-mobile" to="/favoritos"><Heart size={16} />Favoritos</Link></>
     }
     if (id === 'conta-painel-perfil' || id === 'conta-painel-carteiras') {
       return comProps(node, ocultar(props, carteiras === id.endsWith('perfil')), filhos())

@@ -45,12 +45,28 @@ test('endereço do protótipo redireciona para o catálogo com filtros e âncora
 })
 
 test('catálogo preserva busca, filtros, ordenação, paginação e histórico', async ({ page }, info) => {
+  const mobile = info.project.name === 'mobile'
+  const verificarGradeMobile = async () => {
+    const cards = page.locator('.design-inicio .card-nft')
+    await expect(cards.locator('.nome-nft:visible')).toHaveCount(9)
+    await expect(cards.locator('.preco-nft:visible')).toHaveCount(9)
+    const imagens = await cards.locator('.imagem-nft').evaluateAll(elementos => elementos.map(elemento => {
+      const { top, left, height } = elemento.getBoundingClientRect()
+      return { top, left, height }
+    }).sort((a, b) => a.top - b.top || a.left - b.left))
+    for (let i = 0; i + 1 < imagens.length; i += 2) {
+      expect(imagens[i].top).toBeCloseTo(imagens[i + 1].top)
+      expect(imagens[i].height).toBeCloseTo(imagens[i + 1].height)
+      expect(imagens[i].left).toBeLessThan(imagens[i + 1].left)
+    }
+  }
   await page.goto('/')
   await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
+  if (mobile) await verificarGradeMobile()
   await page.getByRole('button', { name: 'Próxima página' }).click()
   await expect(page).toHaveURL(/pagina=2/)
   await expect(page.getByText('Página 2 de 3')).toBeVisible()
-  const mobile = info.project.name === 'mobile'
+  if (mobile) await verificarGradeMobile()
   if (mobile) await page.getByRole('button', { name: 'Abrir filtros' }).click()
   const filtros = mobile ? page.getByRole('dialog') : page.locator('.referencia-filtros')
   if (mobile) await filtros.getByLabel('Colecionáveis', { exact: true }).check()
@@ -135,7 +151,7 @@ test('cadastro, conflito, expiração, logout e troca de conta', async ({ page }
   await criar('ana@kurio.test')
   await expect(page.getByText('E-mail já cadastrado.')).toBeVisible()
   await criar('colecionador@kurio.test')
-  await expect(page.getByRole('heading', { name: 'Meu perfil' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Perfil do colecionador' })).toBeVisible()
   await expect(page.locator('#conta-formulario-perfil input[name=nomeExibicao]')).toHaveValue('Colecionador Teste')
   await page.getByRole('button', { name: 'Cenários', exact: true }).click()
   await page.getByRole('button', { name: 'Expirar sessão' }).click()
@@ -143,7 +159,7 @@ test('cadastro, conflito, expiração, logout e troca de conta', async ({ page }
   if (await page.getByRole('dialog').isVisible()) await page.getByRole('button', { name: 'Fechar', exact: true }).click()
   await login(page, 'leo@kurio.test')
   await expect(page.locator('#conta-formulario-perfil input[name=nomeExibicao]')).toHaveValue('Leo Costa')
-  const sair = page.getByRole('button', { name: 'Sair da conta' }).last()
+  const sair = page.getByRole('navigation', { name: 'Seções da minha conta' }).getByRole('button', { name: 'Sair', exact: true })
   await sair.click()
   await page.goto('/conta/perfil')
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
@@ -233,9 +249,21 @@ test('timeout após criação recupera a mesma tentativa após refresh', async (
   await expect(page.locator('#confirmacao-titulo')).toBeVisible({ timeout: 9000 })
   expect(envios).toBe(2)
 })
-test('perfil, avatar, senha e carteira com erros de validação', async ({ page }) => {
-  await page.goto('/conta/perfil')
+test('perfil, avatar, senha e carteira com erros de validação', async ({ page }, info) => {
+  const mobile = info.project.name === 'mobile'
+  const menu = page.getByRole('navigation', { name: 'Seções da minha conta' })
+  const minhaConta = page.getByRole('navigation', { name: 'Navegação mobile' }).getByRole('link', { name: 'Minha conta' })
+  await page.goto(mobile ? '/' : '/conta/perfil')
+  if (mobile) await minhaConta.click()
   await login(page)
+  if (mobile) {
+    await expect(page).toHaveURL('/conta/perfil')
+    await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
+    await expect(menu.getByRole('button', { name: 'Dados do perfil' })).toHaveAttribute('aria-current', 'page')
+    await page.getByRole('link', { name: 'Voltar ao início' }).click()
+    await minhaConta.click()
+    await expect(page).toHaveURL('/conta/perfil')
+  }
   await page.locator('#conta-formulario-perfil input[name=nomeExibicao]').fill('Ana Kurio')
   await page.getByLabel('Avatar', { exact: true }).setInputFiles({
     name: 'avatar.png', mimeType: 'image/png',
@@ -252,7 +280,8 @@ test('perfil, avatar, senha e carteira com erros de validação', async ({ page 
   await page.locator('#conta-senha-atual').fill(senha)
   await page.locator('#conta-formulario-perfil button[type=submit]').click()
   await expect(page.locator('#conta-senha-nova')).toHaveValue('')
-  await page.locator('[data-conta-aba=carteiras]').click()
+  await menu.getByRole('button', { name: 'Carteiras', exact: true }).click()
+  await expect(menu.getByRole('button', { name: 'Carteiras', exact: true })).toHaveAttribute('aria-current', 'page')
   await page.locator('#conta-formulario-carteira input[name=endereco]').fill('inválido')
   await page.locator('#conta-formulario-carteira button[type=submit]').click()
   await expect(page.getByText('Informe um endereço válido para a rede selecionada.')).toBeVisible()
@@ -268,6 +297,10 @@ test('perfil, avatar, senha e carteira com erros de validação', async ({ page 
   await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
   await page.reload()
   await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
+  if (mobile) {
+    await menu.getByRole('link', { name: 'Favoritos', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Favoritos', exact: true })).toBeVisible()
+  }
 })
 test('Socket.IO atualiza cotação antes de confirmar e ignora versões antigas', async ({ page }) => {
   await checkout(page)
