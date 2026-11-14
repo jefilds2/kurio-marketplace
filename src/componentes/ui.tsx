@@ -9,6 +9,7 @@ import { exibirEth } from '../contratos/mercado'
 import { erroDaApi } from '../integracoes/api'
 
 export const cn = (...classes: ClassValue[]) => twMerge(clsx(classes))
+// Button e Dialog adaptados dos componentes Radix do registro shadcn/ui.
 const variacoes = cva('botao', {
   variants: { variant: { default: 'botao-principal', outline: 'botao-contorno', ghost: 'botao-discreto' } },
   defaultVariants: { variant: 'default' },
@@ -24,8 +25,8 @@ export function Janela({ titulo, descricao, gatilho, children, lateral, aberta, 
   return <Dialog.Root open={aberta} onOpenChange={aoMudar}>
     {gatilho && <Dialog.Trigger asChild>{gatilho}</Dialog.Trigger>}
     <Dialog.Portal>
-      <Dialog.Overlay className="janela-fundo" />
-      <Dialog.Content className={cn('janela-conteudo', lateral && 'janela-lateral')}>
+      <Dialog.Overlay data-slot="dialog-overlay" className="janela-fundo" />
+      <Dialog.Content data-slot="dialog-content" className={cn('janela-conteudo', lateral && 'janela-lateral')}>
         <div className="flex items-start justify-between gap-4">
           <Dialog.Title className="text-lg font-bold">{titulo}</Dialog.Title>
           <Dialog.Close asChild><Button variant="ghost" aria-label="Fechar"><X size={18} /></Button></Dialog.Close>

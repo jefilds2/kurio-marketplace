@@ -3,7 +3,7 @@ import { z } from 'zod/mini'
 import type { ApiErro, Cenario } from '../contratos/mercado'
 import { Falha, lerBanco } from './banco'
 
-export const base = '/api'
+export const base = (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, '')
 export type Contexto = { request: Request; params: Record<string, string | readonly string[] | undefined> }
 export function resposta(acao: (ctx: Contexto) => unknown | Promise<unknown>) {
   return async (ctx: Contexto) => {

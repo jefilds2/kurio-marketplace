@@ -6,7 +6,7 @@ import { comProps, definirReferencia, temClasse, ocultar, Referencia, type Alter
 import { Erro, Janela, Skeleton } from '../../componentes/ui'
 import { exibirEth, type Nft } from '../../contratos/mercado'
 import { useSessao } from '../../app/contexto'
-import { mercadoApi } from '../../integracoes/api'
+import { mercadoApi, statusDaApi } from '../../integracoes/api'
 import { useCarrinhoMutation } from '../carrinho/estado'
 import { useFavorito } from './Favoritar'
 import { nftConsulta } from './Detalhe'
@@ -17,7 +17,7 @@ const pagina = definirReferencia('mercado', html)
 export function DetalheVisual({ id }: { id: string }) {
   const consulta = useQuery(nftConsulta(id))
   if (consulta.isPending) return <div className="mx-auto max-w-[1200px] px-8"><Skeleton className="my-8 h-80" /></div>
-  if (!consulta.data) return <main className="mx-auto max-w-[1200px] px-8"><h1>NFT não encontrado</h1><Erro erro={consulta.error} tentar={() => void consulta.refetch()} /></main>
+  if (!consulta.data) return <main className="mx-auto max-w-[1200px] px-8"><h1>{statusDaApi(consulta.error) === 404 ? 'NFT não encontrado' : 'Não foi possível carregar o NFT'}</h1><Erro erro={consulta.error} tentar={() => void consulta.refetch()} /></main>
   return <Ficha key={id} nft={consulta.data} />
 }
 function Ficha({ nft }: { nft: Nft }) {

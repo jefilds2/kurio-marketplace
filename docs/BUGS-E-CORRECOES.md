@@ -72,6 +72,54 @@
 - **Correção:** usar Zod Mini, limitar o processamento ao HTML da página, carregar o estado de demonstração ao abrir o painel e fazer a reconciliação REST nos eventos de reconexão. Os mocks usam um verificador pré-calculado para as contas públicas de demonstração.
 - **Reteste:** suíte de fluxos incluindo login, cenários, dados persistidos, eventos e retomada de pedidos. As auditorias documentam o custo restante da inicialização.
 
+## BUG-011 · Opções de ordenação tinham texto claro sobre fundo branco
+
+- **Reprodução:** abrir Ordenação no Chromium com a aparência clara do sistema.
+- **Correção:** declarar o esquema escuro e aplicar as cores da KURIO ao menu nativo.
+- **Reteste:** as opções têm o par de cores escuro e claro correto. O teste também seleciona a ordem e verifica a URL.
+
+## BUG-012 · A entrada por index.html abria a página inexistente
+
+- **Reprodução:** acessar `/index.html#inicio`, conforme o segundo print.
+- **Correção:** redirecionar para a raiz pelo TanStack Router com filtros e âncora preservados. Os links internos passam a informar a âncora separadamente.
+- **Reteste:** acesso direto com busca e âncora, link do Mercado e rota realmente inexistente.
+
+## BUG-013 · A grade mobile deixava espaço em excesso entre fileiras
+
+- **Reprodução:** comparar o terceiro print com a grade do protótipo em 390 px.
+- **Correção:** ajustar o espaçamento vertical, o alinhamento de título e preço e o preenchimento do card.
+- **Reteste:** snapshot mobile do catálogo.
+
+## BUG-014 · Um cenário de falha podia continuar ativo após recarregar
+
+- **Reprodução:** selecionar falha de conexão, recarregar o catálogo e voltar ao painel.
+- **Correção:** usar nomes descritivos, informar a persistência e oferecer Voltar ao normal, que preserva os dados. O reset integral pede confirmação. O detalhe agora diferencia falha de conexão de NFT inexistente. REST e Socket.IO do mock usam as mesmas origens configuradas no cliente.
+- **Reteste:** MSW responde na sessão limpa e o cenário de falha recupera a listagem sem apagar o carrinho.
+
+## BUG-015 · Troca de carteira podia reutilizar conexão anterior
+
+- **Reprodução:** fechar a revisão, escolher outra carteira e prosseguir enquanto a desconexão anterior estiver em andamento.
+- **Correção:** descartar a conexão anterior ao selecionar outra carteira e bloquear a revisão durante a desconexão. Bloquear mudança de provedor mobile enquanto conectado. Associar erros de validação aos campos do checkout.
+- **Reteste:** simulação de recusa e nova tentativa pela carteira Polygon.
+
+## BUG-016 · Estoque reservado não aparecia da mesma forma no catálogo e no detalhe
+
+- **Correção:** ambos usam a mesma regra de estoque disponível, descontando a reserva de pedidos pendentes. A ação de adicionar ao carrinho fica desabilitada quando a edição padrão está esgotada.
+- **Reteste:** leitura de catálogo e detalhe, edição esgotada e revalidação na revisão.
+
+## BUG-017 · O teste mobile encontrava duas caixas de busca
+
+- **Reprodução:** rodar o novo teste de respostas fora de ordem em 390 px.
+- **Causa:** o seletor de teste também encontrava o campo de apoio para o desktop.
+- **Correção:** acionar o campo mobile visível pelo placeholder. [Trace da rodada inicial](../reports/traces/BUG-017-busca-mobile.zip)
+
+## BUG-018 · O teste de pedido pendente dependia da coincidência de temporizadores
+
+- **Reprodução:** recuperar um pedido pendente no Chromium mobile após interromper a conexão e atualizar.
+- **Causa:** a consulta periódica final coincidia com o limite de espera do teste.
+- **Correção:** usar o relógio do Playwright. Após verificar que o pedido segue pendente no refresh, avançar a data e acionar Consultar status. O teste confirma o recibo pela API, com a mesma URL de pedido.
+- **Reteste:** cenário isolado em desktop e mobile. [Trace da falha](../reports/traces/BUG-018-pedido-pendente.zip)
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

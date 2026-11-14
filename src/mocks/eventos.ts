@@ -4,8 +4,9 @@ import type { EventoNft, EventoPedido } from '../contratos/mercado'
 import { lerBanco } from './banco'
 import { resolverPedidos } from './compras'
 
-const socketUrl = new URL('/', location.origin)
-socketUrl.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+const socketUrl = new URL('/', import.meta.env.VITE_SOCKET_ORIGIN || location.origin)
+if (socketUrl.protocol === 'http:') socketUrl.protocol = 'ws:'
+if (socketUrl.protocol === 'https:') socketUrl.protocol = 'wss:'
 const sockets = ws.link(socketUrl.href)
 type Mensagem = ['nft.updated', EventoNft] | ['order.updated', EventoPedido]
 type Inscrito = { token: string | undefined; emitir: (evento: Mensagem) => void }

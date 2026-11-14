@@ -177,9 +177,10 @@ export const CartaoVisual = memo(function CartaoVisual({ nft, posicao, adicionar
     if (temClasse(node, 'preco-nft')) {
       const antigo = encontrar(node, item => temClasse(item, 'preco-antigo'))
       return comProps(node, {}, <>{exibirEth(nft.edicoes[0].preco)}
+        {!nft.edicoes[0].estoque && <span className="sr-only"> · Edição esgotada</span>}
         {antigo && nft.id === modeloId && <> {comProps(antigo, {}, texto(antigo))}</>}</>)
     }
-    if (temClasse(node, 'adicionar-carrinho')) return adicionar ? comProps(node, { onClick: adicionar, 'aria-label': `Adicionar ${nft.nome} ao carrinho` }, filhos()) : <></>
+    if (temClasse(node, 'adicionar-carrinho')) return adicionar ? comProps(node, { onClick: adicionar, disabled: !nft.edicoes[0].estoque, 'aria-label': `Adicionar ${nft.nome} ao carrinho` }, filhos()) : <></>
     return undefined
   })
 })

@@ -42,11 +42,11 @@
   .design-inicio .aba-nft { font-size: 12px; padding-bottom: 2px; }
   .design-inicio .ordenacao { margin-left: auto; font-size: 10px; }
   .design-inicio .seletor-ordenacao { max-width: 125px; }
-  .design-inicio .grade-nfts { gap: 18px 13px; }
+  .design-inicio .grade-nfts { gap: 8px 13px; }
   .design-inicio .card-nft:nth-child(even) { margin-top: 29px; }
-  .design-inicio .fundo-imagem-nft { padding: 10px 4px 15px; border-radius: 20px; }
-  .design-inicio .nome-nft { margin: 8px 4px 0; }
-  .design-inicio .preco-nft { margin-inline: 4px; }
+  .design-inicio .fundo-imagem-nft { padding: 10px 4px 13px; border-radius: 20px; }
+  .design-inicio .nome-nft { margin: 8px 7px 0; font-size: 13px; line-height: 1.3; }
+  .design-inicio .preco-nft { margin-inline: 7px; }
   .design-inicio .adicionar-carrinho { display: none; }
   .referencia-favorito-mobile { position: absolute; z-index: 2; top: 11px; right: 9px; display: grid; place-items: center; width: 27px; height: 27px; color: #d9904b; background: #3b2517; border-radius: 50%; }
   .referencia-nav-mobile { display: flex; position: fixed; inset: auto 0 0; z-index: 45; justify-content: space-around; align-items: center; min-height: 88px; padding: 7px 10px max(env(safe-area-inset-bottom),7px); border-radius: 24px 24px 0 0; background: #271914; color: #c5a785; }

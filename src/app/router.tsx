@@ -67,6 +67,13 @@ const inicio = createRoute({
   head: () => metadados('KURIO — Marketplace de NFTs', 'Descubra coleções de arte digital e NFTs no marketplace KURIO.'),
   component: Inicio,
 })
+const inicioAntigo = createRoute({
+  getParentRoute: () => raiz, path: '/index.html',
+  validateSearch: (search: Record<string, unknown>) => buscaCatalogo.parse(search),
+  beforeLoad: ({ location, search }) => {
+    throw redirect({ to: '/', search, hash: location.hash, replace: true })
+  },
+})
 function Inicio() {
   const filtros = inicio.useSearch()
   const navigate = useNavigate({ from: '/' })
@@ -104,7 +111,7 @@ const pedido = createRoute({ getParentRoute: () => raiz, path: '/pedidos/$pedido
   component: () => <Pedido id={pedido.useParams().pedidoId} /> })
 
 export const router = createRouter({
-  routeTree: raiz.addChildren([inicio, detalhe, carrinho, login, cadastro, perfil, carteiras, favoritos, pagamento, pedido]),
+  routeTree: raiz.addChildren([inicio, inicioAntigo, detalhe, carrinho, login, cadastro, perfil, carteiras, favoritos, pagamento, pedido]),
   scrollRestoration: true,
   defaultPendingComponent: () => <Skeleton className="mx-auto my-8 h-80 max-w-5xl" />,
 })

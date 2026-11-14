@@ -49,7 +49,11 @@
 .resumo-valores div { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 5px 8px; }
 .resumo-total { font-weight: 700; padding-top: 10px; border-top: 1px solid var(--color-kurio-borda); }
 .resumo-total dd { color: var(--color-kurio-destaque); }
-html { scroll-behavior: smooth; }
+html { color-scheme: dark; scroll-behavior: smooth; }
+select option {
+  background-color: var(--color-kurio-painel);
+  color: var(--color-kurio-texto);
+}
 body { min-height: 100vh; background: var(--color-kurio-fundo); color: var(--color-kurio-texto); font-family: var(--font-kurio); }
 :focus-visible { outline: 2px solid var(--color-kurio-destaque); outline-offset: 2px; }
 button:disabled { cursor: not-allowed; }

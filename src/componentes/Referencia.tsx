@@ -35,7 +35,7 @@ const rotas: [RegExp, string][] = [
 ]
 function destinoLocal(href: string) {
   for (const [padrao, destino] of rotas) {
-    if (padrao.test(href)) return destino + href.slice(href.indexOf('#') < 0 ? href.length : href.indexOf('#'))
+    if (padrao.test(href)) return { to: destino as '/', hash: href.split('#')[1] }
   }
 }
 function imagemLocal(src: string) {
@@ -119,7 +119,7 @@ function renderizarNo(node: DOMNode, key: number, alterar?: Alterar): ReactNode 
   }
   if (node.name === 'a' && node.attribs.href) {
     const href = destinoLocal(node.attribs.href)
-    if (href) return <Link key={key} {...props} to={href as '/'}>{filhos()}</Link>
+    if (href) return <Link key={key} {...props} {...href}>{filhos()}</Link>
     if (node.attribs.href === '#') return <span key={key} className={String(props.className ?? '')}>{filhos()}</span>
   }
   if (node.name === 'textarea' && node.children[0]?.type === 'text') {
@@ -193,8 +193,8 @@ export function Referencia({ pagina, alterar, extras, busca }: {
       return comProps(node, { onClick: () => sair.mutate(), disabled: sair.isPending }, filhos())
     }
     if (node.name === 'a' && /#(inicio|mercado|criadores|aprenda)$/.test(node.attribs.href ?? '')) {
-      const href = '/' + node.attribs.href.slice(node.attribs.href.indexOf('#'))
-      return <Link {...props} to={href as '/'} onClick={() => setMenu(false)}>{filhos()}</Link>
+      const hash = node.attribs.href.split('#')[1]
+      return <Link {...props} to='/' hash={hash} onClick={() => setMenu(false)}>{filhos()}</Link>
     }
     return undefined
   }

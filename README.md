@@ -41,12 +41,18 @@ Use `ana@kurio.test` ou `leo@kurio.test`. Ambas as contas de demonstração come
 1. Abra um NFT, escolha uma edição em estoque e adicione ao carrinho.
 2. Abra o carrinho, experimente `KURIO10` ou `EXPIRADO`, entre e confira os itens preservados.
 3. Escolha uma carteira e a rede, clique em **Confirmar compra** para conectar e revisar a cotação, depois confirme o envio no diálogo. A tela acompanha o pedido até a resposta terminal.
-4. Use o botão **Cenários**, ao fim da página, para reproduzir falhas ou restaurar a demonstração.
+4. Para navegar e comprar normalmente, deixe **Cenário ativo** em **Normal**.
+
+### Como usar o painel Cenários
+
+O painel fica no fim da página e controla o MSW, a API simulada exigida pelo desafio. Para testar, abra **Cenários**, selecione **Carregamento lento**, feche o painel e recarregue o catálogo. Você verá os cartões de carregamento antes dos NFTs. Para encerrar o teste, abra o painel e clique em **Voltar ao normal**. Isso preserva a conta, o carrinho e os pedidos. A seleção de falha fica ativa após recarregar a página.
+
+Se o catálogo mostrar erro de conexão após um teste, comece por **Voltar ao normal**. Se a página disser que a demonstração não iniciou, abra o endereço mostrado pelo Vite em uma aba normal do navegador. A API simulada precisa de localhost ou HTTPS, Service Worker e armazenamento do site. No modo normal, o painel pode ficar fechado.
 
 | Cenário ou ação | Como reproduzir |
 | --- | --- |
-| `vazio`, `lento`, `fora-de-ordem` | Selecione o cenário e volte ao catálogo. Em `fora-de-ordem`, pesquise termos curtos e longos em sequência. |
-| `sem-rede`, `erro-http` | Consulte catálogo, detalhe ou carrinho. Retorne a `padrao` para recuperar. |
+| `vazio`, `lento`, `fora-de-ordem` | Selecione o cenário e volte ao catálogo. Em **Respostas fora de ordem**, pesquise termos curtos e longos em sequência. |
+| `sem-rede`, `erro-http` | Consulte catálogo, detalhe ou carrinho. Use **Voltar ao normal** para recuperar. |
 | Sessão expirada e conflito | Use **Expirar sessão** durante um fluxo privado ou tente cadastrar o e-mail de uma conta existente. |
 | `favorito-falha` | Entre, escolha o cenário, favorite um NFT e observe o rollback. |
 | `carteira-recusada` | Selecione o cenário antes de abrir a revisão pelo botão **Confirmar compra**. |
@@ -55,7 +61,7 @@ Use `ana@kurio.test` ou `leo@kurio.test`. Ambas as contas de demonstração come
 | `pedido-timeout` | Confirme uma compra. Após timeout, feche a revisão e use **Consultar ou reenviar tentativa**. A opção sobrevive ao refresh da mesma aba. |
 | `pedido-pendente` | Envie, abra **Cenários**, clique em **Interromper conexão** e recarregue a tela do pedido para retomar. |
 
-**Resetar demonstração** restaura fixtures e invalida contas e pedidos criados no cenário local. Consulte [Arquitetura](ARCHITECTURE.md), [Regras de negócio](docs/REGRAS-DE-NEGOCIO.md) e [Registro de bugs](docs/BUGS-E-CORRECOES.md).
+**Resetar demonstração** pede confirmação e restaura os dados iniciais, apagando alterações de conta, carrinho e pedidos deste navegador. Consulte [Arquitetura](ARCHITECTURE.md), [Regras de negócio](docs/REGRAS-DE-NEGOCIO.md) e [Registro de bugs](docs/BUGS-E-CORRECOES.md) e [Checklist do desafio](docs/CHECKLIST-DO-DESAFIO.md).
 
 ## Publicação manual no Netlify
 

@@ -29,6 +29,21 @@ async function checkout(page: Page) {
 }
 const confirmar = (page: Page) => page.getByRole('dialog', { name: 'Revisar compra' }).getByRole('button', { name: 'Confirmar compra' })
 
+test('endereço do protótipo redireciona para o catálogo com filtros e âncora', async ({ page }, info) => {
+  await page.goto('/index.html?busca=Emerald#inicio')
+  await expect(page).toHaveURL(url => url.pathname === '/' && url.searchParams.get('busca') === 'Emerald' && url.hash === '#inicio')
+  await expect(page.getByRole('status').filter({ hasText: '2 NFTs' })).toBeVisible()
+  if (info.project.name === 'desktop') {
+    await page.getByRole('link', { name: 'Mercado', exact: true }).first().click()
+    await expect(page).toHaveURL(url => url.pathname === '/' && url.hash === '#mercado')
+    const opcao = page.getByLabel('Ordenação').getByRole('option', { name: 'Menor preço' })
+    await expect(opcao).toHaveCSS('background-color', 'rgb(39, 25, 20)')
+    await expect(opcao).toHaveCSS('color', 'rgb(245, 241, 235)')
+  }
+  await page.goto('/rota-inexistente')
+  await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible()
+})
+
 test('catálogo preserva busca, filtros, ordenação, paginação e histórico', async ({ page }, info) => {
   await page.goto('/')
   await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
@@ -64,6 +79,31 @@ test('catálogo preserva busca, filtros, ordenação, paginação e histórico',
   await page.goForward()
   await expect(busca).toHaveValue('Emerald')
 })
+test('busca mais recente prevalece quando a simulação devolve respostas fora de ordem', async ({ page }, info) => {
+  await page.goto('/')
+  await cenario(page, 'fora-de-ordem')
+  const mobile = info.project.name === 'mobile'
+  const buscar = async (termo: string) => {
+    if (mobile) {
+      await page.getByPlaceholder('Explorar coleções').fill(termo)
+      return
+    }
+    await page.getByRole('button', { name: 'Buscar', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('textbox', { name: 'Explorar coleções' }).fill(termo)
+    await dialog.getByRole('button', { name: 'Buscar', exact: true }).click()
+  }
+  const primeira = page.waitForRequest(req => new URL(req.url()).searchParams.get('busca') === 'Sa')
+  await buscar('Sa')
+  await primeira
+  const segunda = page.waitForResponse(res => new URL(res.url()).searchParams.get('busca') === 'Emerald')
+  await buscar('Emerald')
+  expect((await segunda).ok()).toBeTruthy()
+  await expect(page.getByRole('status').filter({ hasText: '2 NFTs' })).toBeVisible()
+  await expect(page.locator('.grade-nfts')).toContainText('Emerald Foundry #182')
+  await expect(page.locator('.grade-nfts')).not.toContainText('Sage Nomad #009')
+})
+
 test('detalhe direto, galeria, edição esgotada e recurso inexistente', async ({ page }) => {
   await detalhe(page)
   if (await page.getByRole('button', { name: 'Visualizar imagem 2' }).isVisible()) {
@@ -157,6 +197,19 @@ test('compra do NFT ao recibo e retirada dos itens comprados', async ({ page }) 
   await page.goto(url)
   await expect(page.getByText('1.206 ETH', { exact: true }).first()).toBeVisible()
 })
+test('conexão de carteira recusada permite tentar novamente e usar a rede da reserva', async ({ page }) => {
+  await checkout(page)
+  await cenario(page, 'carteira-recusada')
+  await page.locator('#pagamentos-confirmar').click()
+  await expect(page.getByText('A conexão com a carteira foi recusada.')).toBeVisible()
+  await expect(page).toHaveURL(/\/pagamento/)
+  await cenario(page, 'padrao')
+  await page.getByRole('button', { name: 'Trocar carteira', exact: true }).click()
+  await page.getByRole('button', { name: 'Reserva · Polygon', exact: true }).click()
+  await page.locator('#pagamentos-confirmar').click()
+  await expect(page.getByRole('dialog', { name: 'Revisar compra' }).getByText('1.194 ETH')).toBeVisible()
+})
+
 test('recusa de pagamento preserva itens', async ({ page }) => {
   await checkout(page)
   await cenario(page, 'pagamento-recusado')
@@ -208,6 +261,13 @@ test('perfil, avatar, senha e carteira com erros de validação', async ({ page 
   await expect(page.getByText('Carteira salva.')).toBeVisible()
   await page.reload()
   await expect(page.locator('#conta-formulario-carteira input[name=endereco]')).toHaveValue('nova.kurio.eth')
+  await page.locator('#conta-adicionar-carteira').click()
+  const secundaria = page.locator('#conta-formulario-carteira-secundaria')
+  await secundaria.locator('input[name=endereco]').fill('reserva.kurio.eth')
+  await secundaria.locator('button[type=submit]').click()
+  await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
+  await page.reload()
+  await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
 })
 test('Socket.IO atualiza cotação antes de confirmar e ignora versões antigas', async ({ page }) => {
   await checkout(page)
@@ -257,17 +317,22 @@ test('checkout preserva o pedido e volta após expirar a sessão', async ({ page
 })
 
 test('pedido pendente retoma depois de desconexão e refresh', async ({ page }) => {
+  await page.clock.install()
   await checkout(page)
   await cenario(page, 'pedido-pendente')
   await page.locator('#pagamentos-confirmar').click()
   await confirmar(page).click()
-  await expect(page.getByRole('heading', { name: 'Pedido pendente' })).toBeVisible()
+  const pendente = page.getByRole('heading', { name: 'Pedido pendente' })
+  await expect(pendente).toBeVisible()
   await page.getByRole('button', { name: 'Cenários', exact: true }).click()
   await page.getByRole('button', { name: 'Interromper conexão' }).click()
   await expect(page.getByText('Cenário disparado.')).toBeVisible()
   const url = page.url()
   await page.reload()
-  await expect(page.locator('#confirmacao-titulo')).toBeVisible({ timeout: 13000 })
+  await expect(pendente).toBeVisible()
+  await page.clock.setSystemTime(Date.now() + 9_000)
+  await page.getByRole('button', { name: 'Consultar status' }).click()
+  await expect(page.locator('#confirmacao-titulo')).toBeVisible()
   expect(page.url()).toBe(url)
 })
 test('navegação por teclado, foco de diálogos e validação em formulário', async ({ page }) => {
@@ -296,4 +361,26 @@ test('skeletons, falha de rede e nova tentativa', async ({ page }) => {
   await expect(page.getByText('Serviço temporariamente indisponível.').first()).toBeVisible()
   await cenario(page, 'padrao')
   await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
+})
+
+
+test('modo normal recupera o catálogo sem limpar o carrinho', async ({ page }) => {
+  await detalhe(page)
+  await page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true }).click()
+  await expect(page.getByText('NFT adicionado ao carrinho.')).toBeVisible()
+  await page.goto('/')
+  await cenario(page, 'vazio')
+  await expect(page.getByText('Nenhum NFT encontrado.')).toBeVisible()
+  await cenario(page, 'sem-rede')
+  await page.reload()
+  await expect(page.getByText('Não foi possível acessar o serviço.', { exact: false }).first()).toBeVisible()
+  await page.getByRole('button', { name: 'Cenários', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByLabel('Cenário ativo')).toHaveValue('sem-rede')
+  await dialog.getByRole('button', { name: 'Voltar ao normal' }).click()
+  await expect(dialog.getByLabel('Cenário ativo')).toHaveValue('padrao')
+  await dialog.getByRole('button', { name: 'Fechar', exact: true }).click()
+  await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
+  await page.goto('/carrinho')
+  await expect(page.getByRole('button', { name: 'Remover ' + ape })).toBeVisible()
 })

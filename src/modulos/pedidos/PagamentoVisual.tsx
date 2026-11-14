@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { cache, carteirasConsulta } from '../../app/consultas'
@@ -30,6 +30,8 @@ function Checkout({ sessao }: { sessao: Sessao }) {
   const [cupom, setCupom] = useState(false)
   const [outra, setOutra] = useState(false)
   const [aviso, setAviso] = useState('')
+  const [camposInvalidos, setCamposInvalidos] = useState<Record<string, string>>({})
+  const idErros = useId()
   const [carteirasAbertas, abrirCarteiras] = useState(false)
   const [revisao, setRevisao] = useState<{ cotacao: Cotacao; proposta: PedidoInput }>()
   const [tentativa, setTentativa] = useState(() => lerTentativa(dono))
@@ -44,7 +46,17 @@ function Checkout({ sessao }: { sessao: Sessao }) {
   const ligar = useMutation({ mutationFn: mercadoApi.conectar, onSuccess: dados => {
     setConexao(dados); avisar('Carteira conectada.')
   } })
-  const desligar = useMutation({ mutationFn: mercadoApi.desconectar, onSuccess: () => setConexao(undefined) })
+  const desligar = useMutation({ mutationFn: mercadoApi.desconectar, onSuccess: (_, id) => {
+    setConexao(atual => atual?.id === id ? undefined : atual)
+  } })
+  function trocarCarteira(carteira: { id: string; rede: Rede }) {
+    if (conexao) {
+      setConexao(undefined)
+      desligar.mutate(conexao.id)
+    }
+    setCarteira(carteira.id)
+    setRede(carteira.rede)
+  }
   const enviar = useMutation({
     mutationFn: (dados: Tentativa) => mercadoApi.iniciarPedido(dados.proposta, dados.chave),
     onSuccess: async (resposta, dados) => {
@@ -78,6 +90,7 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     if (!cotacao.data?.linhas.length || cotacao.data.problemas.length || tentativa || pendente.data || !carteira) return
     const form = new FormData(e.currentTarget)
     setAviso('')
+    setCamposInvalidos({})
     const endereco = String(outra ? form.get('carteiraExtra') : form.get('carteiraEndereco'))
     if (endereco.trim().toLowerCase() !== carteira.endereco.toLowerCase() || carteira.rede !== rede) {
       setAviso('Escolha uma carteira cadastrada compatível com o endereço e a rede informados.')
@@ -90,6 +103,9 @@ function Checkout({ sessao }: { sessao: Sessao }) {
           nomePerfil: form.get('nomePerfil'), indicacao: form.get('indicacao'), ens: form.get('ens'),
           observacao: form.get('observacao') || undefined } })
       if (!validacao.success) {
+        setCamposInvalidos(Object.fromEntries(validacao.error.issues
+          .filter(item => item.path[0] === 'coletor')
+          .map(item => [item.path[1] === 'nome' ? 'nomeExibicao' : String(item.path[1]), item.message])))
         setAviso('Revise os dados do perfil do colecionador.')
         return
       }
@@ -121,10 +137,7 @@ function Checkout({ sessao }: { sessao: Sessao }) {
         <fieldset aria-label="Carteiras cadastradas">
           {[...(carteiras.data ?? [])].reverse().map(item => <label key={item.id}>
             <input type="radio" name="escolher-carteira-mobile" checked={carteira?.id === item.id}
-              onChange={() => {
-                if (conexao) desligar.mutate(conexao.id)
-                setCarteira(item.id); setRede(item.rede)
-              }} />
+              onChange={() => trocarCarteira(item)} />
             <span><strong>{item.nome}</strong><small title={item.endereco}>{nomeCarteiraCurto(item.endereco)}</small>
               <small>Rede {item.rede}</small></span>
             <span className="ml-auto self-center" aria-hidden="true">⋮</span>
@@ -141,7 +154,11 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     if (id && Object.hasOwn(totais, id)) return comProps(node, {}, totais[id])
     if (id === 'pagamentos-formulario') return comProps(node, { noValidate: false, onSubmit: (e: React.FormEvent<HTMLFormElement>) => void revisar(e),
       key: carteira?.id ?? 'perfil' }, filhos())
-    if (node.name === 'input' && nome && Object.hasOwn(valores, nome)) return comProps(node, { defaultValue: valores[nome] })
+    if (node.name === 'input' && nome && Object.hasOwn(valores, nome)) {
+      const erro = camposInvalidos[nome]
+      return comProps(node, { defaultValue: valores[nome], 'aria-invalid': erro ? true : undefined,
+        'aria-describedby': erro ? idErros + nome : undefined })
+    }
     if (id === 'pagamentos-rede') return comProps(node, { value: rede, disabled: !!conexao, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
       const nova = redes.find(item => item === e.target.value)
       if (!nova) return
@@ -191,7 +208,7 @@ function Checkout({ sessao }: { sessao: Sessao }) {
       const marca = radio && 'attribs' in radio ? radio.attribs.value : ''
       return comProps(node, {}, <><span className="checkout-mobile-provedor" aria-hidden="true">{marca === 'Coinbase Wallet' ? '◉' : marca[0]}</span>
         <span className="checkout-mobile-provedor-nome">{marca}</span><span className="checkout-desktop-provedor">{filhos()}</span>
-        <input className="checkout-mobile-radio" type="radio" aria-label={marca} name="provedor-mobile" checked={provedor === marca}
+        <input className="checkout-mobile-radio" type="radio" aria-label={marca} name="provedor-mobile" checked={provedor === marca} disabled={!!conexao}
           onChange={() => setProvedor(marca as typeof provedores[number])} /></>)
     }
     if (id === 'pagamentos-titulo-perfil') return comProps(node, { className: props.className + ' checkout-desktop-perfil-titulo' }, filhos())
@@ -199,17 +216,20 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     if (id === 'pagamentos-abrir-cupom') return comProps(node, { onClick: () => setCupom(!cupom), 'aria-expanded': cupom }, filhos())
 
     if (id === 'pagamentos-confirmar') return comProps(node, { disabled: !atual?.linhas.length || !!atual.problemas.length ||
-      !carteira || ligar.isPending || !!tentativa || !!pendente.data }, filhos())
+      !carteira || ligar.isPending || desligar.isPending || !!tentativa || !!pendente.data }, filhos())
     if (id === 'pagamentos-retorno') {
       const mensagem = aviso || atual?.problemas.join(' ') || (ligar.error ? erroDaApi(ligar.error).mensagem : '')
-      return comProps(node, ocultar(props, !mensagem), mensagem)
+      return comProps(node, { ...ocultar(props, !mensagem), role: mensagem ? 'alert' : 'status' }, <>
+        {mensagem}
+        {Object.entries(camposInvalidos).map(([nome, erro]) => <span className="block" id={idErros + nome} key={nome}>{erro}</span>)}
+      </>)
     }
     if (id === 'pagamentos-ver-demo') return <></>
     return undefined
   }
   return <Referencia pagina={pagina} alterar={visual} extras={<>
     <div className="mx-auto max-w-[1200px] px-8">
-      <Erro erro={enviar.error || pendente.error || cotacao.error || carteiras.error} />
+      <Erro erro={enviar.error || pendente.error || cotacao.error || carteiras.error || desligar.error} />
       {tentativa?.pedidoId ? <Link className="link" to="/pedidos/$pedidoId" params={{ pedidoId: tentativa.pedidoId }}>Acompanhar pedido</Link>
         : tentativa && !enviar.isPending && <Button onClick={() => confirmar(tentativa)}>Consultar ou reenviar tentativa</Button>}
       {pendente.data && !tentativa?.pedidoId && <Link className="link" to="/pedidos/$pedidoId" params={{ pedidoId: pendente.data.id }}>Abrir pedido pendente</Link>}
@@ -217,8 +237,8 @@ function Checkout({ sessao }: { sessao: Sessao }) {
     </div>
     <Janela titulo="Carteiras cadastradas" descricao="Escolha a carteira que receberá os NFTs." aberta={carteirasAbertas} aoMudar={abrirCarteiras}>
       {carteiras.data?.map(item => <Button className="my-2 block w-full" variant="outline" key={item.id} onClick={() => {
-        if (conexao) desligar.mutate(conexao.id)
-        setCarteira(item.id); setRede(item.rede); abrirCarteiras(false)
+        trocarCarteira(item)
+        abrirCarteiras(false)
       }}>{item.nome} · {item.rede}</Button>)}
       <Link className="link" to="/conta/carteiras">Gerenciar carteiras</Link>
     </Janela>

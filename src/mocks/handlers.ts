@@ -1,13 +1,19 @@
 import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod/mini'
-import { buscaCatalogo, cenarios, cotar, cupom, decimal, item, pedido, wei } from '../contratos/mercado'
-import { carrinhoDo, donoDo, editarBanco, falhar, lerBanco, resetBanco, tokenDe, usuarioDo } from './banco'
+import { buscaCatalogo, cenarios, cotar, cupom, decimal, item, pedido, wei, type Nft } from '../contratos/mercado'
+import { carrinhoDo, donoDo, editarBanco, falhar, lerBanco, resetBanco, tokenDe, usuarioDo, type Banco } from './banco'
 import { alterarItem, calcularCotacao, criarPedido, encontrarEdicao, mesmaEdicao, quantidadeReservada, validarCupom } from './compras'
 import { atualizarPedidos, emitirNft, interromperSockets } from './eventos'
 import { base, corpo, resposta, simular } from './http'
 import { contaHandlers } from './conta'
 
 const porPagina = 9
+
+function comEstoqueDisponivel(banco: Banco, nft: Nft) {
+  return { ...nft, edicoes: nft.edicoes.map(edicao => ({ ...edicao,
+    estoque: Math.max(0, edicao.estoque - quantidadeReservada(banco, { nftId: nft.id, edicaoId: edicao.id, quantidade: 1 })),
+  })) }
+}
 export const handlers = [
   ...contaHandlers,
   http.get(base + '/nfts', resposta(async ({ request }) => {
@@ -33,8 +39,8 @@ export const handlers = [
       return (diferenca < 0n ? -1 : Number(diferenca > 0n)) * (filtros.ordem === 'menor-preco' ? 1 : -1)
     })
     const inicio = (filtros.pagina - 1) * porPagina
-    return { itens: itens.slice(inicio, inicio + porPagina), total: itens.length,
-      paginas: Math.max(1, Math.ceil(itens.length / porPagina)), destaques: banco.nfts.slice(0, 3) }
+    return { itens: itens.slice(inicio, inicio + porPagina).map(nft => comEstoqueDisponivel(banco, nft)), total: itens.length,
+      paginas: Math.max(1, Math.ceil(itens.length / porPagina)), destaques: banco.nfts.slice(0, 3).map(nft => comEstoqueDisponivel(banco, nft)) }
   })),
   http.get(base + '/nfts/:id', resposta(async ({ request, params }) => {
     const banco = await lerBanco()
@@ -42,9 +48,7 @@ export const handlers = [
     if (falha) return falha
     const nft = banco.nfts.find(nft => nft.id === params.id)
     if (!nft) falhar(404, 'nft-inexistente', 'NFT não encontrado.')
-    return { ...nft, edicoes: nft.edicoes.map(edicao => ({ ...edicao,
-      estoque: Math.max(0, edicao.estoque - quantidadeReservada(banco, { nftId: nft.id, edicaoId: edicao.id, quantidade: 1 })),
-    })) }
+    return comEstoqueDisponivel(banco, nft)
   })),
   http.get(base + '/favoritos', resposta(async ({ request }) => {
     const banco = await lerBanco()

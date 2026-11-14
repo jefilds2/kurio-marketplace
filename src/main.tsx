@@ -21,8 +21,9 @@ async function iniciar() {
   else cache.setQueryData(sessaoConsulta.queryKey, null)
   root.render(<QueryClientProvider client={cache}><RouterProvider router={router} /></QueryClientProvider>)
 }
-void iniciar().catch(() => {
+void iniciar().catch(erro => {
+  console.error('Falha ao iniciar a API simulada do KURIO', erro)
   root.render(<main className="pagina estado-vazio"><h1>Não foi possível iniciar a demonstração</h1>
-    <p>Abra pelo endereço HTTPS ou localhost e verifique se o navegador permite Service Workers.</p>
+    <p>Abra em HTTPS ou localhost e permita o uso de Service Workers e armazenamento do site. No navegador integrado, tente abrir o mesmo endereço em uma aba comum.</p>
     <button className="botao botao-principal" onClick={() => location.reload()}>Tentar novamente</button></main>)
 })
