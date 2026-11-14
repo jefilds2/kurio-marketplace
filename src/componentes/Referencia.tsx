@@ -135,12 +135,15 @@ function observarLayout(notificar: () => void) {
   viewport.addEventListener('change', notificar)
   return () => viewport.removeEventListener('change', notificar)
 }
+export function useLayoutMobile() {
+  return useSyncExternalStore(observarLayout, layoutMobile)
+}
 const cabecalhoERodapeOcultos = new Set(['inicio', 'mercado', 'carrinho', 'pagamentos'])
 
 export function Referencia({ pagina, alterar, extras, busca }: {
   pagina: Pagina; alterar: Alterar; extras?: ReactNode; busca?: { valor: string; mudar: (valor: string) => void }
 }) {
-  const mobile = useSyncExternalStore(observarLayout, layoutMobile)
+  const mobile = useLayoutMobile()
   const [menu, setMenu] = useState(false)
   const [pesquisa, setPesquisa] = useState(false)
   const [buscaLocal, setBuscaLocal] = useState('')

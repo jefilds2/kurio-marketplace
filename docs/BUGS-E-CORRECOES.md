@@ -144,6 +144,13 @@ O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No
 - **Correção:** adicionar Minha conta com texto no topo do catálogo, incorporar Favoritos ao menu da conta com retorno ao início e habilitar os corações do catálogo também no desktop.
 - **Reteste:** Playwright verifica os acessos a partir da home, a alternância entre perfil e favoritos, o retorno com a lista preenchida e a atualização dos favoritos nos dois tamanhos.
 
+## BUG-022 · Ficha mobile pulava a revisão do carrinho
+
+- **Reprodução:** abra a ficha de um NFT no celular e tente acessar o carrinho pelo ícone ao lado de Comprar NFT.
+- **Causa no código:** o ícone só adicionava o item à lista, enquanto Comprar NFT encaminhava diretamente para o fluxo de pagamento.
+- **Correção:** no mobile, o ícone abre o carrinho sem alterar os itens. Comprar NFT adiciona a edição e a quantidade escolhidas e abre o carrinho para revisão. Conectar e finalizar inicia o checkout.
+- **Reteste:** Playwright cobre abertura do carrinho vazio e preenchido pelo ícone, edição de quantidades e avanço para pagamento. A captura do carrinho aguarda o aviso temporário de adição desaparecer.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).
