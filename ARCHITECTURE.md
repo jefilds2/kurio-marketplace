@@ -44,4 +44,4 @@ Os prints mobile orientam a apresentação responsiva quando ela diverge do HTML
 
 A suíte Playwright guarda as referências de regressão do build em 1440 e 390 px. O teste de 768 px verifica acesso e largura da página. A comparação visual com os originais deve considerar o mesmo viewport e dados equivalentes. As referências mobile incluem uma moldura de apresentação fora da página, por isso a área útil precisa ser comparada separadamente.
 
-No mobile, os cards do catálogo aparecem em duas colunas com as imagens niveladas em cada linha. O ícone de conta na barra inferior leva a Minha conta, que abre no perfil e exibe o menu para acessar Carteiras, Favoritos e Sair. O layout mobile de conta reutiliza os formulários de perfil e carteiras.
+No mobile, os cards do catálogo aparecem em duas colunas com as imagens niveladas em cada linha. Minha conta fica no topo do catálogo e na barra inferior. A rota `/favoritos` usa o mesmo menu de conta em desktop e mobile, com acesso a perfil, carteiras e retorno ao início. O catálogo, os detalhes e a lista de favoritos oferecem a ação de favoritar ou remover.

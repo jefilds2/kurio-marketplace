@@ -164,7 +164,7 @@ test('cadastro, conflito, expiração, logout e troca de conta', async ({ page }
   await page.goto('/conta/perfil')
   await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
 })
-test('favoritos persistem e fazem rollback em falha de mutation', async ({ page }) => {
+test('favoritos persistem e fazem rollback em falha de mutation', async ({ page }, info) => {
   await page.goto('/login?retorno=%2Fnfts%2Fnft-01')
   await login(page)
   const favorito = page.getByRole('button', { name: 'Favoritar ' + ape })
@@ -178,6 +178,23 @@ test('favoritos persistem e fazem rollback em falha de mutation', async ({ page 
   await expect(page.getByRole('button', { name: 'Remover ' + ape + ' dos favoritos' })).toHaveAttribute('aria-pressed', 'true')
   await page.reload()
   await expect(page.getByRole('button', { name: 'Remover ' + ape + ' dos favoritos' })).toBeVisible()
+  await page.goto('/')
+  const card = page.locator('[data-nft-id="nft-01"]')
+  await card.getByRole('button', { name: 'Remover ' + ape + ' dos favoritos', exact: true }).click()
+  await card.getByRole('button', { name: 'Favoritar ' + ape, exact: true }).click()
+  const menu = page.getByRole('navigation', { name: 'Seções da minha conta' })
+  if (info.project.name === 'mobile') {
+    await page.getByRole('navigation', { name: 'Navegação mobile' }).getByRole('link', { name: 'Favoritos', exact: true }).click()
+  } else {
+    await page.getByRole('button', { name: 'Minha conta', exact: true }).click()
+    await menu.getByRole('link', { name: 'Favoritos', exact: true }).click()
+  }
+  await expect(menu.getByRole('link', { name: 'Favoritos', exact: true })).toHaveAttribute('aria-current', 'page')
+  const remover = card.getByRole('button', { name: 'Remover ' + ape + ' dos favoritos', exact: true })
+  await expect(remover).toBeVisible()
+  await page.getByRole('link', { name: 'Voltar ao início', exact: true }).click()
+  await expect(page).toHaveURL(url => url.pathname === '/')
+  await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
 })
 test('carrinho persiste após refresh e login, aplica cupom, edita e remove', async ({ page }) => {
   await detalhe(page)
@@ -252,7 +269,7 @@ test('timeout após criação recupera a mesma tentativa após refresh', async (
 test('perfil, avatar, senha e carteira com erros de validação', async ({ page }, info) => {
   const mobile = info.project.name === 'mobile'
   const menu = page.getByRole('navigation', { name: 'Seções da minha conta' })
-  const minhaConta = page.getByRole('navigation', { name: 'Navegação mobile' }).getByRole('link', { name: 'Minha conta' })
+  const minhaConta = page.getByRole('link', { name: 'Minha conta', exact: true }).filter({ hasText: 'Minha conta' })
   await page.goto(mobile ? '/' : '/conta/perfil')
   if (mobile) await minhaConta.click()
   await login(page)
@@ -297,10 +314,10 @@ test('perfil, avatar, senha e carteira com erros de validação', async ({ page 
   await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
   await page.reload()
   await expect(page.locator('#conta-carteira-secundaria-resumo')).toContainText('reserva.kurio.eth')
-  if (mobile) {
-    await menu.getByRole('link', { name: 'Favoritos', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Favoritos', exact: true })).toBeVisible()
-  }
+  await menu.getByRole('link', { name: 'Favoritos', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Favoritos', exact: true })).toBeVisible()
+  await menu.getByRole('button', { name: 'Dados do perfil', exact: true }).click()
+  await expect(page.locator('#conta-formulario-perfil input[name=nomeExibicao]')).toHaveValue('Ana Kurio')
 })
 test('Socket.IO atualiza cotação antes de confirmar e ignora versões antigas', async ({ page }) => {
   await checkout(page)

@@ -4,19 +4,20 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, Heart } from 'lucide-react'
 import { cache, carteirasConsulta, perfilConsulta } from '../../app/consultas'
 import { useSessao } from '../../app/contexto'
-import { comProps, definirReferencia, ocultar, Referencia, temClasse, type Alterar } from '../../componentes/Referencia'
+import { comProps, definirReferencia, ocultar, Referencia, temClasse, texto, type Alterar } from '../../componentes/Referencia'
 import { erroDaApi, mercadoApi } from '../../integracoes/api'
 import type { Carteira } from '../../contratos/mercado'
+import { Favoritos } from '../catalogo/Favoritos'
 import html from '../../referencias/minha-conta.html?raw'
 
 const pagina = definirReferencia('conta', html)
 
-export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
+export function ContaVisual({ secao = 'perfil' }: { secao?: 'perfil' | 'carteiras' | 'favoritos' }) {
   const { sessao, avisar } = useSessao()
   const dono = sessao?.perfil.id ?? ''
   const navigate = useNavigate()
-  const perfil = useQuery(perfilConsulta(dono))
-  const consulta = useQuery(carteirasConsulta(dono))
+  const perfil = useQuery({ ...perfilConsulta(dono), enabled: !!dono && secao !== 'favoritos' })
+  const consulta = useQuery({ ...carteirasConsulta(dono), enabled: !!dono && secao !== 'favoritos' })
   const principal = consulta.data?.find(item => item.tipo === 'principal')
   const secundaria = consulta.data?.find(item => item.tipo === 'secundaria')
   const [mostrarSecundaria, setMostrarSecundaria] = useState(false)
@@ -64,17 +65,24 @@ export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
     }
     if (id === 'conta-formulario-perfil' && perfil.isPending) return <div className="skeleton h-48" />
     if (aba === 'perfil' || aba === 'carteiras') {
-      const abaCarteiras = aba === 'carteiras'
-      const ativa = carteiras === abaCarteiras
-      const botao = comProps(node, {
+      const ativa = secao === aba
+      return comProps(node, {
         'data-ativo': String(ativa), 'aria-current': ativa ? 'page' : undefined,
-        onClick: () => void navigate({ to: abaCarteiras ? '/conta/carteiras' : '/conta/perfil' }),
+        onClick: () => void navigate({ to: aba === 'carteiras' ? '/conta/carteiras' : '/conta/perfil' }),
       }, filhos())
-      if (!abaCarteiras) return botao
-      return <>{botao}<Link className="conta-favoritos-mobile" to="/favoritos"><Heart size={16} />Favoritos</Link></>
+    }
+    if (temClasse(node, 'conta-opcao') && texto(node) === 'Lista de interesse') {
+      return <Link to="/favoritos" className={String(props.className)}
+        data-ativo={secao === 'favoritos'}
+        activeProps={{ className: 'border-kurio-destaque bg-[#35211a]' }}>
+        <Heart size={16} />Favoritos
+      </Link>
+    }
+    if (secao === 'favoritos' && temClasse(node, 'conta-paineis')) {
+      return comProps(node, {}, <Favoritos />)
     }
     if (id === 'conta-painel-perfil' || id === 'conta-painel-carteiras') {
-      return comProps(node, ocultar(props, carteiras === id.endsWith('perfil')), filhos())
+      return comProps(node, ocultar(props, id !== `conta-painel-${secao}`), filhos())
     }
     if (id === 'conta-formulario-perfil') return comProps(node, { key: perfil.data?.id ?? 'carregando', noValidate: false,
       onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,7 +97,7 @@ export function ContaVisual({ carteiras = false }: { carteiras?: boolean }) {
       const principalDefaults: Record<string, string | undefined> = {
         nomeExibicao: perfil.data?.nome, usuario: perfil.data?.usuario ?? (perfil.data?.email.split('@')[0]),
         email: perfil.data?.email, nomeEns: perfil.data?.nomeEns ?? perfil.data?.email.split('@')[0],
-        apelidoCarteira: carteiras ? principal?.nome ?? 'Principal' : perfil.data?.apelidoCarteira ?? principal?.nome ?? 'Principal',
+        apelidoCarteira: secao === 'carteiras' ? principal?.nome ?? 'Principal' : perfil.data?.apelidoCarteira ?? principal?.nome ?? 'Principal',
         nomePerfil: perfil.data?.nome, indicacao: 'KURIO', endereco: principal?.endereco, secundaria: secundaria?.endereco, apelido: secundaria?.nome,
       }
       let parent = node.parent

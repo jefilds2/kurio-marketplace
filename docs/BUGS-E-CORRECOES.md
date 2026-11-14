@@ -137,6 +137,13 @@ O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No
 - **Correção:** nivelar as imagens e mostrar nome e preço em todos os cards do catálogo mobile. A tela Minha conta usa um menu compacto com os acessos a perfil, carteiras, favoritos e saída.
 - **Reteste:** suíte Playwright com verificação da grade e navegação pela conta.
 
+## BUG-021 · Acesso à conta e retorno de Favoritos
+
+- **Reprodução:** abra Favoritos pela barra inferior no celular ou procure o acesso a Minha conta perto dos filtros.
+- **Causa:** a lista de favoritos abria em uma tela isolada, a conta só tinha um ícone na barra inferior do catálogo mobile e o coração dos cards só aparecia no mobile.
+- **Correção:** adicionar Minha conta com texto no topo do catálogo, incorporar Favoritos ao menu da conta com retorno ao início e habilitar os corações do catálogo também no desktop.
+- **Reteste:** Playwright verifica os acessos a partir da home, a alternância entre perfil e favoritos, o retorno com a lista preenchida e a atualização dos favoritos nos dois tamanhos.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

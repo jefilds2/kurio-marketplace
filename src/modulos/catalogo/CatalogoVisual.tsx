@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { memo, useState } from 'react'
-import { Heart, Search, SlidersHorizontal } from 'lucide-react'
+import { Heart, Search, SlidersHorizontal, UserRound } from 'lucide-react'
 import { useFavorito } from '../nft/Favoritar'
 import { Button, Erro, Janela, Skeleton } from '../../componentes/ui'
 import { comProps, definirReferencia, encontrar, modelo, Referencia, renderizar, temClasse, texto, type Alterar } from '../../componentes/Referencia'
@@ -106,6 +106,9 @@ export function PaginaCatalogoVisual({ filtros, navegar }: { filtros: BuscaCatal
     }
     if (node.attribs.id === 'inicio') {
       return comProps(node, { id: 'inicio', tabIndex: -1 }, <>
+        <div className="referencia-conta-mobile">
+          <Link to="/conta/perfil"><UserRound size={17} aria-hidden="true" />Minha conta</Link>
+        </div>
         <div className="referencia-busca-mobile">
           <Search size={17} aria-hidden="true" />
           <input aria-label="Explorar coleções" placeholder="Explorar coleções" value={filtros.busca}
@@ -168,15 +171,15 @@ export const CartaoVisual = memo(function CartaoVisual({ nft, posicao, adicionar
   return renderizar(cartao, (node, _props, filhos) => {
     if (node === cartao) {
       return comProps(node, { 'data-nft-id': nft.id, 'data-raro': nft.destaque === 'Raro' }, <>{filhos()}
-        {semDadosVisuais && <div className="referencia-dados-nft-mobile">
-          <p className="nome-nft truncate">{nome}</p>
-          <p className="preco-nft text-[13px] font-bold text-kurio-destaque min-[501px]:text-[15px]">{preco}</p>
-        </div>}
+        {semDadosVisuais && <>
+          <p className="nome-nft mt-3 mb-[5px] truncate text-[13px] max-[500px]:text-[11px]">{nome}</p>
+          <p className="preco-nft text-[15px] font-bold text-kurio-destaque max-[500px]:text-[13px]">{preco}</p>
+        </>}
       </>)
     }
     if (temClasse(node, 'fundo-imagem-nft')) return comProps(node, {}, <>{filhos()}
       {nft.destaque === 'Raro' && <span className="referencia-nft-raro">RARO</span>}
-      <button type="button" className="referencia-favorito-mobile" aria-pressed={favorito.ativo}
+      <button type="button" className="referencia-favorito" aria-pressed={favorito.ativo}
         aria-label={favorito.ativo ? `Remover ${nft.nome} dos favoritos` : `Favoritar ${nft.nome}`}
         onClick={favorito.alternar} disabled={favorito.desabilitado}><Heart size={14} fill={favorito.ativo ? 'currentColor' : 'none'} /></button>
     </>)

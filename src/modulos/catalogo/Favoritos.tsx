@@ -9,11 +9,12 @@ import { CartaoVisual } from './CatalogoVisual'
 export function Favoritos() {
   const { sessao } = useSessao()
   const favoritos = useQuery(favoritosConsulta(sessao?.perfil.id ?? 'visitante'))
-  return <section className="design-kurio mx-auto max-w-[1200px] px-8 py-8 font-kurio">
-    <h1 className="mb-6">Favoritos</h1>
+  return <section className="conta-painel" aria-labelledby="conta-titulo-favoritos">
+    <Link to="/" className="link conta-inicio-desktop mb-4 inline-block text-[13px]">Voltar ao início</Link>
+    <h2 id="conta-titulo-favoritos" className="mb-6 text-[15px] font-bold">Favoritos</h2>
     <Erro erro={favoritos.error} tentar={() => void favoritos.refetch()} />
-    {favoritos.data?.length === 0 && <div className="estado-vazio"><h2>Você ainda não tem favoritos</h2><Button asChild><Link to="/">Explorar NFTs</Link></Button></div>}
-    <div className="grade-nfts grid grid-cols-3 gap-6 max-[800px]:grid-cols-2">
+    {favoritos.data?.length === 0 && <div className="estado-vazio"><h3>Você ainda não tem favoritos</h3><Button asChild><Link to="/">Explorar NFTs</Link></Button></div>}
+    <div className="grade-nfts grid grid-cols-3 gap-4 max-[800px]:grid-cols-2">
       {favoritos.isPending && <Skeleton className="skeleton-card" />}
       {favoritos.data?.map((id, i) => <Favorito key={id} id={id} posicao={i} />)}
     </div>

@@ -12,7 +12,6 @@ import { nftConsulta } from '../modulos/nft/Detalhe'
 import { DetalheVisual } from '../modulos/nft/DetalheVisual'
 import { Demonstracao } from './Demonstracao'
 
-const Favoritos = lazy(() => import('../modulos/catalogo/Favoritos').then(m => ({ default: m.Favoritos })))
 const Carrinho = lazy(() => import('../modulos/carrinho/CarrinhoVisual').then(m => ({ default: m.CarrinhoVisual })))
 const Autenticacao = lazy(() => import('../modulos/conta/AutenticacaoVisual').then(m => ({ default: m.AutenticacaoVisual })))
 const Conta = lazy(() => import('../modulos/conta/ContaVisual').then(m => ({ default: m.ContaVisual })))
@@ -101,9 +100,9 @@ const cadastro = createRoute({ getParentRoute: () => raiz, path: '/cadastro', va
 const perfil = createRoute({ getParentRoute: () => raiz, path: '/conta/perfil', beforeLoad: exigirSessao,
   head: () => metadados('Meu perfil — KURIO', 'Atualize seu perfil e suas credenciais.', true), component: () => <Conta /> })
 const carteiras = createRoute({ getParentRoute: () => raiz, path: '/conta/carteiras', beforeLoad: exigirSessao,
-  head: () => metadados('Carteiras — KURIO', 'Gerencie suas carteiras simuladas.', true), component: () => <Conta carteiras /> })
+  head: () => metadados('Carteiras — KURIO', 'Gerencie suas carteiras simuladas.', true), component: () => <Conta secao="carteiras" /> })
 const favoritos = createRoute({ getParentRoute: () => raiz, path: '/favoritos', beforeLoad: exigirSessao,
-  head: () => metadados('Favoritos — KURIO', 'Consulte seus NFTs favoritos.', true), component: Favoritos })
+  head: () => metadados('Favoritos — KURIO', 'Consulte seus NFTs favoritos.', true), component: () => <Conta secao="favoritos" /> })
 const pagamento = createRoute({ getParentRoute: () => raiz, path: '/pagamento', beforeLoad: exigirSessao,
   head: () => metadados('Pagamento — KURIO', 'Revise a compra simulada e a carteira selecionada.', true), component: Pagamento })
 const pedido = createRoute({ getParentRoute: () => raiz, path: '/pedidos/$pedidoId', beforeLoad: exigirSessao,

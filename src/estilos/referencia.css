@@ -3,15 +3,21 @@
 .design-login { --color-kurio-borda: #503022; --color-kurio-campo: #291914; background: #150e0b; padding: 32px 16px; }
 .design-login .login-modal { max-width: 622px; margin: 0 auto; }
 .design-conta { --color-kurio-campo: #291914; }
+.design-conta .conta-conteudo:has(#conta-titulo-favoritos) { align-content: start; }
 .design-confirmacao { --confirmacao-fonte: "Roboto Mono Variable", monospace; }
 .design-kurio :where(a,button,input,textarea,select):focus-visible { outline: 2px solid #d9904b; outline-offset: 2px; }
 .design-kurio .filtro-selecionado { color: var(--color-kurio-destaque); }
 .design-kurio .item-filtro:focus-within { outline: 2px solid var(--color-kurio-destaque); outline-offset: 3px; }
 .referencia-imagem-banner { position: relative; }
 .referencia-mini-banner, .referencia-busca-mobile, .referencia-nav-mobile, .referencia-titulo-mobile,
-.referencia-titulo-fluxo, .referencia-alternar-login, .referencia-favorito-mobile,
-.conta-favoritos-mobile, .referencia-dados-nft-mobile { display: none; }
+.referencia-titulo-fluxo, .referencia-alternar-login, .referencia-conta-mobile { display: none; }
 .referencia-adicionar { margin-top: 9px; }
+.referencia-favorito {
+  position: absolute; z-index: 2; top: 11px; right: 9px; display: grid; place-items: center;
+  width: 34px; height: 34px; color: var(--color-kurio-destaque); background: #3b2517; border-radius: 50%;
+  cursor: pointer;
+}
+.design-carrinho .referencia-favorito { display: none; }
 
 @media (max-width: 600px) {
   .design-inicio .cabecalho, .design-inicio .menu-mobile, .design-mercado .cabecalho,
@@ -19,8 +25,13 @@
   .design-inicio .rodape-kurio, .design-mercado .rodape-kurio,
   .design-carrinho .rodape-kurio, .design-pagamentos .rodape-kurio { display: none; }
   .design-inicio .pagina { padding: 0 22px 76px; }
-  .referencia-busca-mobile { position: relative; display: flex; gap: 7px; min-height: 43px; padding-top: 27px; }
-  .referencia-busca-mobile > svg { position: absolute; top: 40px; left: 12px; color: #ba9a7c; }
+  .referencia-conta-mobile { display: flex; justify-content: flex-end; padding: 10px 0 7px; }
+  .referencia-conta-mobile a {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 12px;
+    border-radius: 10px; background: var(--color-kurio-painel); color: var(--color-kurio-destaque); font-size: 12px;
+  }
+  .referencia-busca-mobile { position: relative; display: flex; gap: 7px; min-height: 43px; }
+  .referencia-busca-mobile > svg { position: absolute; top: 13px; left: 12px; color: #ba9a7c; }
   .referencia-busca-mobile input { min-width: 0; flex: 1; height: 43px; padding: 0 8px 0 36px; border-radius: 10px; color: #ba9a7c; background: #271914; font-size: 12px; }
   .referencia-busca-mobile button { min-width: 43px; padding: 8px; border-radius: 12px; background: linear-gradient(120deg,#9a6038,#d18b4b); }
   .design-inicio .banner { position: relative; display: grid; grid-template-columns: 1.35fr 1fr; align-items: start; gap: 10px; padding: 10px 14px 36px; margin: 14px 0 12px; border-radius: 26px; background: radial-gradient(circle at 5% 10%, #895e3b, #312012 73%); }
@@ -44,12 +55,10 @@
   .design-inicio .ordenacao { margin-left: auto; font-size: 10px; }
   .design-inicio .seletor-ordenacao { max-width: 125px; }
   .design-inicio .grade-nfts { gap: 18px 13px; align-items: start; }
-  .design-inicio .referencia-dados-nft-mobile { display: block; }
   .design-inicio .fundo-imagem-nft { padding: 10px 4px 13px; border-radius: 20px; }
   .design-inicio .nome-nft { margin: 8px 7px 0; font-size: 13px; line-height: 1.3; }
   .design-inicio .preco-nft { margin-inline: 7px; }
   .design-inicio .adicionar-carrinho { display: none; }
-  .referencia-favorito-mobile { position: absolute; z-index: 2; top: 11px; right: 9px; display: grid; place-items: center; width: 27px; height: 27px; color: #d9904b; background: #3b2517; border-radius: 50%; }
   .referencia-nav-mobile { display: flex; position: fixed; inset: auto 0 0; z-index: 45; justify-content: space-around; align-items: center; min-height: 88px; padding: 7px 10px max(env(safe-area-inset-bottom),7px); border-radius: 24px 24px 0 0; background: #271914; color: #c5a785; }
   .referencia-nav-mobile a { display: grid; place-items: center; min-width: 43px; min-height: 43px; }
   .referencia-nav-centro { background: linear-gradient(135deg,#ad7142,#d9904b); color: #f5f1eb; border-radius: 50%; width: 60px; height: 60px; transform: translateY(-35px); }
@@ -66,14 +75,15 @@
   .referencia-titulo-fluxo a { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #3b2517; color: #ba9a7c; }
   .referencia-titulo-fluxo h1 { font-weight: 700; font-size: 16px; }
   .design-conta .conta-cabecalho, .design-conta #conta-menu-mobile,
-  .design-conta .conta-menu-lateral > h1, .design-conta .conta-opcao[data-conta-visual]:not(:last-child) { display: none; }
+  .design-conta .conta-menu-lateral > h1, .design-conta .conta-opcao[data-conta-visual]:not(:last-child),
+  .design-conta .conta-inicio-desktop { display: none; }
   .design-conta .conta-conteudo { gap: 16px; padding: 20px 0 32px; }
   .design-conta .conta-menu-lateral { overflow: visible; background: transparent; }
   .design-conta .referencia-titulo-fluxo { grid-template-columns: 44px 1fr 44px; margin: 0 0 16px; }
   .design-conta .referencia-titulo-fluxo a { width: 44px; height: 44px; }
   .design-conta .conta-menu-lateral nav, .design-conta .conta-painel { border-radius: 14px; background: #271914; }
   .design-conta .conta-menu-lateral nav { padding: 4px 8px; }
-  .design-conta .conta-menu-lateral :is(.conta-opcao, .conta-favoritos-mobile) {
+  .design-conta .conta-menu-lateral .conta-opcao {
     display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px;
     border: 0; border-radius: 8px; color: #c5a785; font-size: 13px;
   }
