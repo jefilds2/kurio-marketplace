@@ -1,9 +1,22 @@
+# Dependências e build
 node_modules/
 dist/
-.env.local
-.env.*.local
+
+# Configuração local
+.env
+.env.*
+!.env.example
 .netlify/
+.vercel/
+
+# Relatórios gerados pelos testes e auditorias
 test-results/
 playwright-report/
 reports/chrome-profile/
 reports/lighthouse/
+
+# Arquivos temporários
+coverage/
+*.log
+.DS_Store
+Thumbs.db
