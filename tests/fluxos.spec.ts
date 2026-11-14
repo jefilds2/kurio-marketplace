@@ -22,8 +22,13 @@ async function cenario(page: Page, nome: string) {
 }
 async function checkout(page: Page) {
   await detalhe(page)
+  const mobile = test.info().project.name === 'mobile'
+  if (mobile) {
+    await page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true }).click()
+    await expect(page.getByText('NFT adicionado ao carrinho.')).toBeVisible()
+  }
   await page.getByRole('button', { name: 'Comprar NFT' }).click()
-  if (test.info().project.name === 'mobile') {
+  if (mobile) {
     await expect(page).toHaveURL('/carrinho')
     await page.getByRole('button', { name: 'Conectar e finalizar' }).click()
   }
@@ -202,18 +207,22 @@ test('favoritos persistem e fazem rollback em falha de mutation', async ({ page 
 })
 test('carrinho persiste após refresh e login, aplica cupom, edita e remove', async ({ page }, info) => {
   const mobile = info.project.name === 'mobile'
-  const abrirCarrinho = page.getByRole('link', { name: 'Abrir carrinho', exact: true })
+  const comprar = page.getByRole('button', { name: 'Comprar NFT', exact: true })
   await detalhe(page)
   if (mobile) {
-    await abrirCarrinho.click()
+    await comprar.click()
     await expect(page).toHaveURL('/carrinho')
     await expect(page.locator('#carrinho-vazio')).toBeVisible()
     await detalhe(page)
   }
-  await page.getByRole('button', { name: mobile ? 'Comprar NFT' : 'Adicionar ao carrinho', exact: true }).click()
+  await page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true }).click()
   await expect(page.getByText('NFT adicionado ao carrinho.')).toBeVisible()
-  if (mobile) await expect(page).toHaveURL('/carrinho')
-  else await page.goto('/carrinho')
+  if (mobile) {
+    await expect(page).toHaveURL('/nfts/nft-01')
+    await comprar.click()
+    await expect(page).toHaveURL('/carrinho')
+    await expect(page.locator('#carrinho-subtotal')).toHaveText('1.19 ETH')
+  } else await page.goto('/carrinho')
   await page.getByRole('button', { name: 'Aumentar quantidade' }).click()
   await expect(page.locator('#carrinho-subtotal')).toHaveText('2.38 ETH')
   await page.getByLabel('Código promocional').fill('EXPIRADO')
@@ -228,8 +237,8 @@ test('carrinho persiste após refresh e login, aplica cupom, edita e remove', as
   await login(page)
   await expect(page.getByText('2.158 ETH', { exact: true }).first()).toBeVisible()
   if (mobile) {
-    await detalhe(page)
-    await abrirCarrinho.click()
+    await page.goto('/nfts/nft-02')
+    await comprar.click()
     await expect(page).toHaveURL('/carrinho')
     await expect(page.locator('#carrinho-subtotal')).toHaveText('2.38 ETH')
     await page.getByRole('button', { name: 'Diminuir quantidade' }).click()
@@ -434,9 +443,9 @@ test('skeletons, falha de rede e nova tentativa', async ({ page }) => {
 })
 
 
-test('modo normal recupera o catálogo sem limpar o carrinho', async ({ page }, info) => {
+test('modo normal recupera o catálogo sem limpar o carrinho', async ({ page }) => {
   await detalhe(page)
-  await page.getByRole('button', { name: info.project.name === 'mobile' ? 'Comprar NFT' : 'Adicionar ao carrinho', exact: true }).click()
+  await page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true }).click()
   await expect(page.getByText('NFT adicionado ao carrinho.')).toBeVisible()
   await page.goto('/')
   await cenario(page, 'vazio')

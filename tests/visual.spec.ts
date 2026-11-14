@@ -9,10 +9,12 @@ test('referências visuais de início, detalhe, carrinho e pagamento', async ({ 
   await expect(page).toHaveScreenshot('detalhe.png')
   const mobile = info.project.name === 'mobile'
   const aviso = page.getByText('NFT adicionado ao carrinho.')
-  await page.getByRole('button', { name: mobile ? 'Comprar NFT' : 'Adicionar ao carrinho', exact: true }).click()
+  await page.getByRole('button', { name: 'Adicionar ao carrinho', exact: true }).click()
   await expect(aviso).toBeVisible()
-  if (mobile) await expect(page).toHaveURL('/carrinho')
-  else await page.goto('/carrinho')
+  if (mobile) {
+    await page.getByRole('button', { name: 'Comprar NFT', exact: true }).click()
+    await expect(page).toHaveURL('/carrinho')
+  } else await page.goto('/carrinho')
   await expect(page.getByText('1.206 ETH', { exact: true }).first()).toBeVisible()
   await expect(aviso).toBeHidden({ timeout: 8_000 })
   await expect(page).toHaveScreenshot('carrinho.png')

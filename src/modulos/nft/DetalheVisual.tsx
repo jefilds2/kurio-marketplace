@@ -55,13 +55,12 @@ function Ficha({ nft }: { nft: Nft }) {
   const edicoes = [...nft.edicoes].sort((a, b) => ordemEdicoes.indexOf(a.id) - ordemEdicoes.indexOf(b.id))
   const itensRelacionados = ordemRelacionada.map(indice => obrasRelacionadas[indice]).filter(item => item && item.id !== nft.id)
   const deslocamento = [2, 0, 1][paginaRelacionada]
-  async function adicionar(destino?: '/carrinho' | '/pagamento') {
+  async function adicionar(comprar = false) {
     if (!edicao.estoque) return
     try {
       await mutation.mutateAsync({ acao: 'adicionar', item: { nftId: nft.id, edicaoId, quantidade } })
       avisar('NFT adicionado ao carrinho.')
-      if (destino === '/pagamento' && !sessao) await navigate({ to: '/login', search: { retorno: destino } })
-      else if (destino) await navigate({ to: destino })
+      if (comprar) await (sessao ? navigate({ to: '/pagamento' }) : navigate({ to: '/login', search: { retorno: '/pagamento' } }))
     } catch { /* Erro exibido na ficha. */ }
   }
   const visual: Alterar = (node, props, filhos) => {
@@ -100,10 +99,8 @@ function Ficha({ nft }: { nft: Nft }) {
     </>)
     if (node.name === 'div' && node.children.some(filho => filho.type === 'tag' && 'attribs' in filho && filho.attribs.id === 'mercado-comprar')) {
       return comProps(node, { className: props.className + ' referencia-acoes-nft' }, <>{filhos()}
-        {mobile
-          ? <Link to="/carrinho" className="referencia-adicionar" aria-label="Abrir carrinho"><ShoppingCart size={16} /></Link>
-          : <button type="button" className="referencia-adicionar" aria-label="Adicionar ao carrinho" onClick={() => void adicionar()}
-            disabled={!edicao.estoque || mutation.isPending}><ShoppingCart size={16} /></button>}
+        <button type="button" className="referencia-adicionar" aria-label="Adicionar ao carrinho" onClick={() => void adicionar()}
+          disabled={!edicao.estoque || mutation.isPending}><ShoppingCart size={16} /></button>
       </>)
     }
     if (node.name === 'div' && node.children.some(filho => filho.type === 'tag' && 'attribs' in filho
@@ -117,7 +114,7 @@ function Ficha({ nft }: { nft: Nft }) {
     if (id === 'mercado-diminuir') return comProps(node, { disabled: quantidade <= 1, onClick: () => setQtd(quantidade - 1) }, filhos())
     if (id === 'mercado-aumentar') return comProps(node, { disabled: quantidade >= edicao.estoque, onClick: () => setQtd(quantidade + 1) }, filhos())
     if (id === 'mercado-comprar') return comProps(node, { 'aria-label': 'Comprar NFT', disabled: !edicao.estoque || mutation.isPending,
-      onClick: () => void adicionar(mobile ? '/carrinho' : '/pagamento') }, <><span className="detalhe-desktop-compra">{filhos()}</span><span className="detalhe-mobile-compra">Comprar NFT</span></>)
+      onClick: () => void (mobile ? navigate({ to: '/carrinho' }) : adicionar(true)) }, <><span className="detalhe-desktop-compra">{filhos()}</span><span className="detalhe-mobile-compra">Comprar NFT</span></>)
     if (id === 'mercado-favoritar') return comProps(node, { onClick: favorito.alternar, disabled: favorito.desabilitado,
       'aria-pressed': favorito.ativo, 'aria-label': favorito.ativo ? `Remover ${nft.nome} dos favoritos` : `Favoritar ${nft.nome}` }, filhos())
     if (node.name === 'div' && node.attribs['aria-label'] === 'Avaliação média de colecionadores') return comProps(node, {}, <>

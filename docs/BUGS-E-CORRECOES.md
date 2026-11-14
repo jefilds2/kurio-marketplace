@@ -146,10 +146,10 @@ O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No
 
 ## BUG-022 · Ficha mobile pulava a revisão do carrinho
 
-- **Reprodução:** abra a ficha de um NFT no celular e tente acessar o carrinho pelo ícone ao lado de Comprar NFT.
-- **Causa no código:** o ícone só adicionava o item à lista, enquanto Comprar NFT encaminhava diretamente para o fluxo de pagamento.
-- **Correção:** no mobile, o ícone abre o carrinho sem alterar os itens. Comprar NFT adiciona a edição e a quantidade escolhidas e abre o carrinho para revisão. Conectar e finalizar inicia o checkout.
-- **Reteste:** Playwright cobre abertura do carrinho vazio e preenchido pelo ícone, edição de quantidades e avanço para pagamento. A captura do carrinho aguarda o aviso temporário de adição desaparecer.
+- **Reprodução:** abra a ficha de um NFT no celular, adicione o item pelo ícone e toque em Comprar NFT para revisar a lista.
+- **Causa no código:** Comprar NFT encaminhava direto ao pagamento. Uma revisão anterior inverteu a função do ícone e atribuiu a inclusão do item a Comprar NFT.
+- **Correção:** o ícone adiciona a edição e a quantidade escolhidas e mantém a ficha aberta. Comprar NFT abre o carrinho com os itens existentes. Conectar e finalizar inicia o checkout.
+- **Reteste:** Playwright verifica a inclusão pelo ícone, a abertura do carrinho vazio ou preenchido por Comprar NFT, os subtotais após abrir a lista e o avanço para pagamento.
 
 ## Como registrar o próximo bug
 
