@@ -69,4 +69,3 @@ Se o catálogo mostrar erro de conexão após um teste, comece por **Voltar ao n
 
 Importe o repositório no Netlify. A configuração versionada usa Node 22, executa `npm run build`, publica `dist/` e serve a SPA por rotas diretas. Para publicar por upload manual, execute `npm ci` e `npm run build`, confirme que `dist/_redirects` está presente e faça upload de `dist/`. Depois abra a URL HTTPS em uma sessão limpa e confirme acesso direto, refresh, compra e atualização em tempo real antes da entrega.
 
-O formulário da Jungle Gaming solicita link do repositório e URL pública da aplicação. [Formulário de entrega](https://entrevistas.45-55-130-35.sslip.io/testes/front-remoto)
