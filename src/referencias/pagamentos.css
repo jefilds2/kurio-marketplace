@@ -1,0 +1,14 @@
+/* KURIO / Pagamentos — apenas tokens.
+   Todo o layout, componentes e estados usam classes utilitárias do Tailwind CSS v4 em index.html.
+   O Codex deve compilar Tailwind no React; o Play CDN é somente para protótipo. */
+:root {
+  --pagamentos-fundo: #150e0b;
+  --pagamentos-painel: #271914;
+  --pagamentos-campo: #3b2517;
+  --pagamentos-texto: #f5f1eb;
+  --pagamentos-secundaria: #ba9a7c;
+  --pagamentos-destaque: #d9904b;
+  --pagamentos-destaque-modal: #d28a4c;
+  --pagamentos-borda: #36241c;
+  --pagamentos-fonte: "Roboto Mono", monospace;
+}

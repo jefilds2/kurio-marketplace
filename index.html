@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#140d0a" />
+    <meta name="description" content="Explore o marketplace KURIO e descubra coleções de arte digital e NFTs." />
+    <link rel="icon" href="/favicon.ico" />
+    <script>
+      if (location.pathname === "/" || location.pathname === "/nfts/nft-01") {
+        const image = document.createElement("link")
+        image.rel = "preload"
+        image.as = "image"
+        image.href = "/images/primeape1.webp"
+        image.fetchPriority = "high"
+        document.head.append(image)
+        if (location.pathname === "/" && matchMedia("(max-width: 640px)").matches) {
+          const thumbnail = image.cloneNode()
+          thumbnail.href = "/images/primeape1-thumb.webp"
+          thumbnail.fetchPriority = "high"
+          document.head.append(thumbnail)
+        }
+      }
+    </script>
+    <title>KURIO — Marketplace de NFTs</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

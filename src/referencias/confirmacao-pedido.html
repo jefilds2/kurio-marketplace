@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Resumo de confirmação do pedido de NFTs na KURIO." />
+  <title>Confirmação de pedido — KURIO</title>
+  <!-- Tailwind v4 para prototipação; no projeto React usar o build oficial. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./index.css" />
+</head>
+<body class="min-h-dvh bg-[var(--confirmacao-fundo)] text-[var(--confirmacao-texto)] font-[family-name:var(--confirmacao-fonte)]">
+  <!-- A confirmação do Figma é um modal central sobre fundo escuro; não há header ou footer nessa tela. -->
+  <main class="flex min-h-dvh flex-col items-center px-4 pb-10 pt-[clamp(24px,10vh,160px)] max-[540px]:px-2 max-[540px]:pt-4">
+    <section id="confirmacao-janela" role="dialog" aria-modal="true" aria-labelledby="confirmacao-titulo"
+      class="confirmacao-janela relative w-full max-w-[580px] min-h-[816px] overflow-hidden border-b-[10px] border-b-[var(--confirmacao-destaque)] bg-[var(--confirmacao-painel)] shadow-[0_20px_70px_rgba(0,0,0,0.28)] max-[540px]:min-h-[760px]">
+
+      <button type="button" id="confirmacao-fechar" aria-label="Fechar confirmação e voltar à página inicial"
+        class="confirmacao-fechar absolute right-[14px] top-[13px] z-10 flex size-7 cursor-pointer items-center justify-center rounded-sm text-[var(--confirmacao-destaque)] transition-colors hover:bg-[var(--confirmacao-campo)] hover:text-[var(--confirmacao-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--confirmacao-destaque)]">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19" /></svg>
+      </button>
+
+      <!-- CABEÇALHO DE CONFIRMAÇÃO -->
+      <header class="confirmacao-cabecalho flex min-h-[150px] flex-col items-center justify-end border-b border-[var(--confirmacao-destaque)] px-4 pb-[18px] pt-[22px] text-center max-[540px]:min-h-[142px]">
+        <!-- Ilustração vetorial simples do envelope THANK YOU presente no Figma -->
+        <svg class="mb-[13px] h-[82px] w-[82px] text-[var(--confirmacao-destaque)]" viewBox="0 0 90 90" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 38 45 61 75 38V77H15V38Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" />
+          <path d="M15 76 36 55M75 76 54 55M15 38l7-7M75 38l-7-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M28 15v-4c0-3 2-5 5-5h24c3 0 5 2 5 5v4" stroke="currentColor" stroke-width="2.3" />
+          <path d="M26 13h38v38L45 65 26 51V13Z" fill="var(--confirmacao-painel)" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" />
+          <text x="45" y="26" text-anchor="middle" fill="currentColor" font-family="Arial,sans-serif" font-size="12" font-weight="800">THANK</text>
+          <text x="45" y="38" text-anchor="middle" fill="currentColor" font-family="Arial,sans-serif" font-size="13" font-weight="800">YOU</text>
+          <path d="M27 41 45 57 63 41" stroke="currentColor" stroke-width="2.3" />
+        </svg>
+        <h1 id="confirmacao-titulo" class="text-[15px] font-semibold tracking-[0.01em] max-[400px]:text-[13px]">Seus NFTs agora estão na sua carteira</h1>
+        <p id="confirmacao-status" role="status" aria-live="polite" class="mt-1 hidden text-[10px] text-[var(--confirmacao-destaque)]"></p>
+      </header>
+
+      <!-- INFORMAÇÕES DO RECIBO -->
+      <div class="confirmacao-identificacao grid grid-cols-[1.1fr_1fr_1fr_0.95fr] border-b border-[var(--confirmacao-borda)] px-[35px] py-4 max-[540px]:grid-cols-2 max-[540px]:gap-y-3 max-[540px]:px-5">
+        <div class="min-w-0 border-r border-[var(--confirmacao-destaque)] pr-3 max-[540px]:border-r-0">
+          <p class="text-[12px] font-medium">ID da transação</p>
+          <p id="confirmacao-id" class="mt-[3px] truncate text-[11px] text-[var(--confirmacao-secundario)]" title="ID da transação">—</p>
+        </div>
+        <div class="min-w-0 border-r border-[var(--confirmacao-destaque)] pl-4 pr-3 max-[540px]:border-r-0 max-[540px]:pl-0">
+          <p class="text-[12px] font-medium">Data</p>
+          <p id="confirmacao-data" class="mt-[3px] text-[11px] text-[var(--confirmacao-secundario)]">—</p>
+        </div>
+        <div class="min-w-0 border-r border-[var(--confirmacao-destaque)] pl-4 pr-3 max-[540px]:border-r-0 max-[540px]:pl-0">
+          <p class="text-[12px] font-medium">Total</p>
+          <p id="confirmacao-total-topo" class="mt-[3px] text-[11px] text-[var(--confirmacao-secundario)]">—</p>
+        </div>
+        <div class="min-w-0 pl-4 max-[540px]:pl-0">
+          <p class="text-[12px] font-medium">Carteira</p>
+          <p id="confirmacao-carteira" class="mt-[3px] truncate text-[11px] text-[var(--confirmacao-secundario)]">—</p>
+        </div>
+      </div>
+
+      <!-- DETALHES DA TRANSAÇÃO -->
+      <div class="confirmacao-corpo mx-auto w-full max-w-[510px] px-1 pb-[82px] pt-[22px] max-[540px]:px-5 max-[540px]:pb-14">
+        <h2 class="mb-[9px] text-[13px] font-semibold">Detalhes da transação</h2>
+        <div class="grid grid-cols-[minmax(0,1fr)_70px_95px] items-center border-b border-[var(--confirmacao-borda)] pb-2 text-[13px] font-semibold max-[420px]:grid-cols-[minmax(0,1fr)_52px_84px] max-[420px]:text-[11px]">
+          <span>NFTs</span><span class="text-center">Edições</span><span class="text-right">Subtotal</span>
+        </div>
+
+        <div id="confirmacao-lista" class="flex flex-col gap-[11px] pt-3" aria-live="polite"></div>
+
+        <div id="confirmacao-vazio" class="hidden py-9 text-center text-[12px] leading-6 text-[var(--confirmacao-secundario)]">
+          Ainda não há um pedido confirmado. Finalize o pagamento e aguarde a confirmação da transação.
+        </div>
+
+        <div class="mt-4 flex flex-col gap-2 border-b border-[var(--confirmacao-borda)] pb-[12px] pl-[30%] text-[12px] max-[420px]:pl-0">
+          <div class="flex items-center justify-between gap-3"><span>Taxa de rede</span><span id="confirmacao-taxa" class="whitespace-nowrap">—</span></div>
+          <div class="flex items-center justify-between gap-3 font-bold"><span>Total</span><span id="confirmacao-total" class="whitespace-nowrap text-[16px] text-[var(--confirmacao-destaque)]">—</span></div>
+        </div>
+
+        <p id="confirmacao-mensagem" class="mx-auto mt-[16px] max-w-[455px] text-center text-[12px] leading-[1.7] text-[var(--confirmacao-secundario)]">
+          Aguardando confirmação do pagamento.
+        </p>
+        <div class="mt-[17px] flex justify-center">
+          <button type="button" id="confirmacao-etherscan" disabled
+            class="confirmacao-botao inline-flex min-h-[46px] min-w-[175px] cursor-pointer items-center justify-center rounded-[5px] bg-[var(--confirmacao-destaque)] px-5 text-[13px] font-bold text-[var(--confirmacao-fundo)] transition-colors hover:bg-[var(--confirmacao-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--confirmacao-destaque)] disabled:cursor-not-allowed disabled:opacity-70">
+            Ver no Etherscan
+          </button>
+        </div>
+        <p id="confirmacao-aviso" class="mt-3 hidden text-center text-[11px] leading-5 text-[var(--confirmacao-destaque)]" role="status" aria-live="polite"></p>
+      </div>
+
+    </section>
+    <p class="mt-4 text-center text-[11px] text-[var(--confirmacao-secundario)]">
+      <a href="../index.html" class="underline underline-offset-4 transition-colors hover:text-[var(--confirmacao-destaque)]">Voltar à KURIO</a>
+    </p>
+  </main>
+
+  <template id="confirmacao-modelo-item">
+    <article class="grid grid-cols-[minmax(0,1fr)_70px_95px] items-center gap-0 max-[420px]:grid-cols-[minmax(0,1fr)_52px_84px]">
+      <div class="flex min-w-0 items-center gap-[12px] max-[420px]:gap-[7px]">
+        <img data-item-imagem class="h-[66px] w-[66px] shrink-0 rounded-[9px] object-cover max-[420px]:h-[53px] max-[420px]:w-[53px]" alt="" />
+        <div class="min-w-0">
+          <p data-item-nome class="truncate text-[13px] font-semibold max-[420px]:text-[11px]"></p>
+          <p data-item-token class="mt-[3px] truncate text-[11px] text-[var(--confirmacao-secundario)] max-[420px]:text-[9px]"></p>
+        </div>
+      </div>
+      <p data-item-quantidade class="text-center text-[12px] text-[var(--confirmacao-secundario)] max-[420px]:text-[10px]"></p>
+      <p data-item-subtotal class="text-right text-[13px] font-bold text-[var(--confirmacao-destaque)] max-[420px]:text-[11px]"></p>
+    </article>
+  </template>
+
+  <script src="./interacoes.js" defer></script>
+
+
+</body>
+</html>

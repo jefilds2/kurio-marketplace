@@ -1,0 +1,13 @@
+/* Minha conta — KURIO
+   O visual está nas classes utilitárias Tailwind CSS v4 de index.html.
+   Estas variáveis ficam isoladas e servem de referência para o Codex.
+   O @theme consumido pelo Play CDN está no <style type="text/tailwindcss"> do HTML. */
+:root {
+  --minha-conta-fundo: #150e0b;
+  --minha-conta-painel: #271914;
+  --minha-conta-campo: #291914;
+  --minha-conta-borda: #36241c;
+  --minha-conta-texto: #f5f1eb;
+  --minha-conta-texto-secundario: #ba9a7c;
+  --minha-conta-destaque: #d9904b;
+}

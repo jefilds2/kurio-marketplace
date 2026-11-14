@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env.local
+.env.*.local
+.netlify/
+test-results/
+playwright-report/
+reports/chrome-profile/
+reports/lighthouse/

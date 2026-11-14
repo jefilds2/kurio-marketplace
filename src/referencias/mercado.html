@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Detalhes dos NFTs da Kurio: galeria, edição, atributos e coleção." />
+  <title>Detalhes do NFT — KURIO</title>
+  <!-- Tailwind CSS v4: usado em TODO o estilo desta tela. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style type="text/tailwindcss">
+    @theme {
+      --font-kurio: "Roboto Mono", monospace;
+      --color-kurio-fundo: #150e0b;
+      --color-kurio-texto: #f5f1eb;
+      --color-kurio-secundaria: #ba9a7c;
+      --color-kurio-destaque: #d9904b;
+      --color-kurio-destaque-hover: #e6a15f;
+      --color-kurio-borda: #36241c;
+      --color-kurio-painel: #271914;
+      --color-kurio-campo: #3b2517;
+      --color-kurio-faixa: #3b2311;
+      --color-kurio-escuro: #1c120e;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-kurio-fundo font-kurio text-kurio-texto">
+  <div class="pagina mx-auto max-w-[1200px] px-8 max-[500px]:px-5">
+<header
+        class="cabecalho flex h-[70px] items-center justify-between gap-6 border-b border-kurio-borda max-[500px]:gap-3"
+      >
+        <a href="../index.html#inicio" class="logo text-[14px] font-bold tracking-[0.1em]">
+          KURIO
+        </a>
+        <!-- MENU -->
+        <nav class="menu flex h-full items-center gap-10 max-[900px]:hidden">
+          <a
+            href="../index.html#inicio"
+            data-ativo="false"
+            class="link-menu inline-flex h-full items-center border-b-[3px] border-transparent text-[14px] transition-colors duration-150 hover:text-kurio-destaque data-[ativo=true]:border-kurio-destaque data-[ativo=true]:text-kurio-destaque focus-visible:outline-2 focus-visible:outline-kurio-destaque"
+            >Início</a
+          >
+          <a
+            href="../index.html#mercado"
+            data-ativo="true"
+            class="link-menu inline-flex h-full items-center border-b-[3px] border-transparent text-[14px] transition-colors duration-150 hover:text-kurio-destaque data-[ativo=true]:border-kurio-destaque data-[ativo=true]:text-kurio-destaque focus-visible:outline-2 focus-visible:outline-kurio-destaque"
+            >Mercado</a
+          >
+          <a
+            href="../index.html#criadores"
+            data-ativo="false"
+            class="link-menu inline-flex h-full items-center border-b-[3px] border-transparent text-[14px] transition-colors duration-150 hover:text-kurio-destaque data-[ativo=true]:border-kurio-destaque data-[ativo=true]:text-kurio-destaque focus-visible:outline-2 focus-visible:outline-kurio-destaque"
+            >Criadores</a
+          >
+          <a
+            href="../index.html#aprenda"
+            data-ativo="false"
+            class="link-menu inline-flex h-full items-center border-b-[3px] border-transparent text-[14px] transition-colors duration-150 hover:text-kurio-destaque data-[ativo=true]:border-kurio-destaque data-[ativo=true]:text-kurio-destaque focus-visible:outline-2 focus-visible:outline-kurio-destaque"
+            >Aprenda</a
+          >
+        </nav>
+        <button
+          id="botao-menu-mobile"
+          class="botao-menu-mobile hidden cursor-pointer items-center rounded border border-kurio-borda px-3 py-2 text-[13px] max-[900px]:inline-flex"
+          type="button"
+          aria-expanded="false"
+          aria-controls="menu-mobile"
+        >
+          Menu
+        </button>
+        <!-- ÍCONES E ENTRAR -->
+        <div class="acoes-cabecalho flex items-center gap-5 max-[500px]:gap-3">
+          <button type="button" aria-label="Buscar">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-4-4"></path>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="botao-carrinho relative inline-flex cursor-pointer items-center justify-center"
+            aria-label="Carrinho com 0 itens"
+            id="abrir-carrinho"
+          >
+            <svg
+              width="23"
+              height="23"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path
+                d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"
+              ></path>
+            </svg>
+            <span
+              id="quantidade-carrinho"
+              class="indicador-carrinho absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-kurio-destaque px-1 text-[10px] font-bold leading-none text-kurio-fundo"
+              aria-live="polite"
+              >0</span
+            >
+          </button>
+          <button
+            type="button"
+            class="botao-entrar inline-flex cursor-pointer items-center gap-2 rounded-md bg-kurio-destaque px-4 py-2 text-[13px] font-semibold text-kurio-fundo transition-colors hover:bg-kurio-destaque-hover max-[500px]:px-[10px]"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M10 17l5-5-5-5"></path>
+              <path d="M15 12H3"></path>
+              <path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"></path>
+            </svg>
+            Entrar
+          </button>
+        </div>
+      </header>
+<nav
+        id="menu-mobile"
+        class="menu-mobile hidden flex-col gap-1 border-b border-kurio-borda bg-kurio-painel p-3 min-[901px]:hidden"
+        hidden
+        aria-label="Menu para celular"
+      >
+        <a
+          href="../index.html#inicio"
+          class="menu-mobile-link rounded px-3 py-2 text-[13px] hover:bg-kurio-campo"
+          >Início</a
+        >
+        <a
+          href="../index.html#mercado"
+          class="menu-mobile-link rounded px-3 py-2 text-[13px] hover:bg-kurio-campo"
+          >Mercado</a
+        >
+        <a
+          href="../index.html#criadores"
+          class="menu-mobile-link rounded px-3 py-2 text-[13px] hover:bg-kurio-campo"
+          >Criadores</a
+        >
+        <a
+          href="../index.html#aprenda"
+          class="menu-mobile-link rounded px-3 py-2 text-[13px] hover:bg-kurio-campo"
+          >Aprenda</a
+        >
+      </nav>
+  <main id="detalhes-mercado" class="pb-0">
+    <!-- CAMINHO DE NAVEGAÇÃO -->
+    <nav aria-label="Caminho da página" class="mt-6 mb-3 flex items-center gap-2 text-[13px] font-medium">
+      <a href="../index.html#inicio" class="hover:text-kurio-destaque">Início</a>
+      <span aria-hidden="true" class="text-kurio-secundaria">/</span>
+      <a href="../index.html#mercado" class="hover:text-kurio-destaque">Mercado</a>
+    </nav>
+
+    <!-- GALERIA + RESUMO DO NFT -->
+    <section aria-labelledby="mercado-titulo-nft" class="mercado-topo grid grid-cols-[minmax(0,1.04fr)_minmax(0,1fr)] gap-8 max-[950px]:gap-6 max-[780px]:grid-cols-1">
+      <div class="mercado-galeria grid min-w-0 grid-cols-[90px_minmax(0,1fr)] items-start gap-5 max-[500px]:grid-cols-[66px_minmax(0,1fr)] max-[500px]:gap-3">
+        <div id="mercado-miniaturas" class="flex flex-col gap-3" aria-label="Miniaturas do NFT">
+          <button type="button" data-miniatura="0" aria-label="Visualizar imagem 1" aria-pressed="true" class="mercado-miniatura aspect-square w-full overflow-hidden rounded-[9px] border-2 border-kurio-destaque bg-kurio-painel transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-kurio-destaque"><img data-imagem-miniatura src="../src/images/primeape1.png" class="h-full w-full object-cover" alt="Miniatura do NFT 1" /></button>
+          <button type="button" data-miniatura="1" aria-label="Visualizar imagem 2" aria-pressed="false" class="mercado-miniatura aspect-square w-full overflow-hidden rounded-[9px] border-2 border-transparent bg-kurio-painel transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-kurio-destaque"><img data-imagem-miniatura src="../src/images/primeape1.png" class="h-full w-full object-cover" alt="Miniatura do NFT 2" /></button>
+          <button type="button" data-miniatura="2" aria-label="Visualizar imagem 3" aria-pressed="false" class="mercado-miniatura aspect-square w-full overflow-hidden rounded-[9px] border-2 border-transparent bg-kurio-painel transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-kurio-destaque"><img data-imagem-miniatura src="../src/images/primeape1.png" class="h-full w-full object-cover" alt="Miniatura do NFT 3" /></button>
+          <button type="button" data-miniatura="3" aria-label="Visualizar imagem 4" aria-pressed="false" class="mercado-miniatura aspect-square w-full overflow-hidden rounded-[9px] border-2 border-transparent bg-kurio-painel transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-kurio-destaque"><img data-imagem-miniatura src="../src/images/primeape1.png" class="h-full w-full object-cover" alt="Miniatura do NFT 4" /></button>
+        </div>
+        <div class="relative min-w-0 rounded-[12px] bg-kurio-painel p-4 max-[500px]:p-2">
+          <img id="mercado-imagem-principal" src="../src/images/primeape1.png" alt="Imagem do NFT selecionado" class="aspect-square w-full rounded-[16px] object-cover" />
+          <button id="mercado-ampliar" type="button" aria-label="Ampliar imagem do NFT" class="absolute top-3 right-3 flex h-[32px] w-[32px] items-center justify-center rounded-full bg-[#291914]/90 text-kurio-texto hover:text-kurio-destaque focus-visible:outline-2 focus-visible:outline-kurio-destaque">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mercado-resumo min-w-0">
+        <h1 id="mercado-titulo-nft" class="text-[27px] leading-[1.3] font-bold max-[500px]:text-[22px]">Emerald Ape #042</h1>
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-kurio-borda pb-2">
+          <p id="mercado-preco-nft" class="text-[20px] font-bold text-kurio-destaque">1.19 ETH</p>
+          <div class="flex items-center gap-1 text-[12px] whitespace-nowrap" aria-label="Avaliação média de colecionadores">
+            <span class="text-[17px] tracking-[1px] text-kurio-destaque" aria-hidden="true">★★★★★</span>
+            <span class="text-[11px]">19 avaliações de colecionadores</span>
+          </div>
+        </div>
+        <div class="mt-3 space-y-3 text-[12px] leading-[1.7]">
+          <div>
+            <h2 class="font-semibold">Sobre este NFT:</h2>
+            <p id="mercado-resumo-descricao" class="mt-[7px] text-kurio-secundaria">Um colecionável digital finalizado à mão da coleção Kurio Editions, verificado na Ethereum, com arte desbloqueável e acesso para colecionadores.</p>
+          </div>
+          <div>
+            <h2 class="font-semibold">Edição:</h2>
+            <div class="mt-1 flex flex-wrap gap-2">
+              <span class="rounded-full border border-kurio-borda px-2 py-[2px] text-[11px] text-kurio-secundaria">1/1</span>
+              <span class="rounded-full border border-kurio-borda px-2 py-[2px] text-[11px] text-kurio-secundaria">1/10</span>
+              <span class="rounded-full border border-kurio-destaque px-2 py-[2px] text-[11px] text-kurio-destaque">1/50</span>
+              <span class="rounded-full border border-kurio-borda px-2 py-[2px] text-[11px] text-kurio-secundaria">ABERTA</span>
+            </div>
+          </div>
+        </div>
+        <div class="my-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3" aria-label="Quantidade de NFTs">
+            <button id="mercado-diminuir" type="button" aria-label="Diminuir quantidade" class="flex h-[38px] w-[29px] items-center justify-center rounded-full bg-kurio-destaque text-[20px] font-bold text-kurio-fundo hover:bg-kurio-destaque-hover disabled:cursor-not-allowed disabled:opacity-50">−</button>
+            <output id="mercado-quantidade" class="min-w-[12px] text-center text-[13px]" aria-live="polite">1</output>
+            <button id="mercado-aumentar" type="button" aria-label="Aumentar quantidade" class="flex h-[38px] w-[29px] items-center justify-center rounded-full bg-kurio-destaque text-[20px] font-bold text-kurio-fundo hover:bg-kurio-destaque-hover">+</button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="mercado-comprar" type="button" class="rounded-[5px] bg-kurio-destaque px-8 py-2 text-[12px] font-bold text-kurio-fundo transition-colors hover:bg-kurio-destaque-hover">COMPRAR</button>
+            <button id="mercado-favoritar" type="button" aria-pressed="false" class="flex items-center gap-2 rounded-[5px] border border-kurio-destaque px-3 py-[7px] text-[12px] text-kurio-destaque transition-colors hover:bg-kurio-painel">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6z"/></svg>
+              <span id="mercado-texto-favorito">Favoritar</span>
+            </button>
+          </div>
+        </div>
+        <dl class="space-y-[7px] text-[12px] leading-[1.6] text-kurio-secundaria">
+          <div class="flex flex-wrap gap-2"><dt>ID do token:</dt><dd id="mercado-token">#0042</dd></div>
+          <div class="flex flex-wrap gap-2"><dt>Coleção:</dt><dd id="mercado-colecao">Kurio Apes</dd></div>
+          <div class="flex flex-wrap gap-2"><dt>Atributos:</dt><dd id="mercado-atributos">Óculos, Esmeralda, Raro</dd></div>
+        </dl>
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
+          <span class="font-semibold">Compartilhar este NFT:</span>
+          <button type="button" data-compartilhar="linkedin" aria-label="Compartilhar no LinkedIn" class="hover:text-kurio-destaque">in</button>
+          <button type="button" data-compartilhar="email" aria-label="Compartilhar por e-mail" class="hover:text-kurio-destaque">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg>
+          </button>
+          <button type="button" data-compartilhar="x" aria-label="Compartilhar no X" class="hover:text-kurio-destaque">𝕏</button>
+          <button type="button" data-compartilhar="copiar" aria-label="Copiar link do NFT" class="hover:text-kurio-destaque">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABAS DE INFORMAÇÕES -->
+    <section class="mercado-informacoes mt-[70px] max-[780px]:mt-12" aria-label="Informações e avaliações do NFT">
+      <div role="tablist" aria-label="Detalhes e avaliações" class="flex flex-wrap items-center gap-7 border-b border-kurio-borda text-[13px]">
+        <button id="mercado-aba-detalhes" type="button" role="tab" aria-selected="true" aria-controls="mercado-painel-detalhes" class="mercado-aba border-b-2 border-kurio-destaque pb-[7px] text-kurio-destaque transition-colors hover:text-kurio-destaque">Detalhes do NFT</button>
+        <button id="mercado-aba-avaliacoes" type="button" role="tab" aria-selected="false" aria-controls="mercado-painel-avaliacoes" class="mercado-aba border-b-2 border-transparent pb-[7px] text-kurio-texto transition-colors hover:text-kurio-destaque">Avaliações de colecionadores (19)</button>
+      </div>
+      <div id="mercado-painel-detalhes" role="tabpanel" aria-labelledby="mercado-aba-detalhes" class="space-y-4 pt-4 text-[12px] leading-[1.8] text-kurio-secundaria">
+        <p id="mercado-descricao-longa">Emerald Ape #042 é uma obra digital 1/50 finalizada à mão da coleção Kurio Editions. Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.</p>
+        <p>A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.</p>
+        <p><strong class="font-bold text-kurio-texto">Rede:</strong><br />Cunhado na Ethereum com procedência imutável e metadados armazenados no IPFS.</p>
+        <p><strong class="font-bold text-kurio-texto">Contrato:</strong><br />Direitos autorais do criador: 5% nas vendas secundárias, pagos automaticamente pelos mercados compatíveis.</p>
+        <p><strong class="font-bold text-kurio-texto">Direitos autorais:</strong><br />0x7A42...19E8 · Contrato inteligente ERC-721 verificado.</p>
+      </div>
+      <div id="mercado-painel-avaliacoes" role="tabpanel" aria-labelledby="mercado-aba-avaliacoes" class="hidden py-8 text-[12px] leading-[1.8] text-kurio-secundaria" hidden>
+        As avaliações dos colecionadores serão carregadas pela API quando o Codex integrar os dados reais. O número 19 reproduz o layout de referência.
+      </div>
+    </section>
+
+    <!-- MAIS DESTA COLEÇÃO -->
+    <section id="mercado-mais-colecao" class="mt-[90px] mb-[86px] max-[780px]:mt-14" aria-labelledby="mercado-titulo-colecao">
+      <h2 id="mercado-titulo-colecao" class="border-b border-kurio-borda pb-3 text-[13px] font-bold text-kurio-destaque">Mais desta coleção</h2>
+      <div id="mercado-lista-relacionados" class="mt-6 grid grid-cols-5 gap-5 max-[900px]:grid-cols-3 max-[550px]:grid-cols-2 max-[550px]:gap-3"></div>
+      <div class="mt-6 flex items-center justify-center gap-2" aria-label="Páginas dos NFTs relacionados">
+        <button data-pagina-relacionados="0" type="button" aria-label="Ver primeira página" aria-pressed="false" class="h-[10px] w-[10px] rounded-full border border-kurio-destaque transition-all hover:bg-kurio-destaque"></button>
+        <button data-pagina-relacionados="1" type="button" aria-label="Ver segunda página" aria-pressed="true" class="h-[10px] w-[10px] rounded-full border border-kurio-destaque bg-kurio-destaque transition-all hover:bg-kurio-destaque"></button>
+        <button data-pagina-relacionados="2" type="button" aria-label="Ver terceira página" aria-pressed="false" class="h-[10px] w-[10px] rounded-full border border-kurio-destaque transition-all hover:bg-kurio-destaque"></button>
+      </div>
+    </section>
+  </main>
+<footer
+        class="rodape-kurio w-full overflow-hidden bg-kurio-painel font-kurio text-kurio-texto"
+      >
+        <!-- PRIMEIRA LINHA: BENEFÍCIOS E NEWSLETTER -->
+        <div
+          class="rodape-kurio-superior grid grid-cols-[1fr_1fr_1fr_1.35fr] gap-0 px-7 pt-7 pb-5 max-[900px]:grid-cols-2 max-[900px]:gap-y-[25px] max-[550px]:grid-cols-1 max-[550px]:gap-y-[25px] max-[550px]:p-5"
+        >
+          <!-- BENEFÍCIO 1 -->
+          <div
+            class="rodape-kurio-beneficio border-r border-[#9e6534] pr-[18px] pl-3 max-[550px]:border-r-0 max-[550px]:border-b max-[550px]:pb-5 max-[550px]:pl-0"
+          >
+            <div
+              class="rodape-kurio-circulo mb-3 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-kurio-destaque text-[18px] font-bold text-kurio-fundo"
+            >
+              W
+            </div>
+
+            <h3
+              class="rodape-kurio-titulo-beneficio mb-2 text-[13px] leading-[1.4] font-bold"
+            >
+              Segurança da carteira
+            </h3>
+
+            <p
+              class="rodape-kurio-descricao-beneficio text-[11px] leading-[1.55] text-kurio-secundaria"
+            >
+              Proteja sua carteira e colecione arte digital verificada com
+              confiança.
+            </p>
+          </div>
+
+          <!-- BENEFÍCIO 2 -->
+          <div
+            class="rodape-kurio-beneficio border-r border-[#9e6534] pr-[18px] pl-3 max-[550px]:border-r-0 max-[550px]:border-b max-[550px]:pb-5 max-[550px]:pl-0"
+          >
+            <div
+              class="rodape-kurio-circulo mb-3 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-kurio-destaque text-[18px] font-bold text-kurio-fundo"
+            >
+              C
+            </div>
+
+            <h3
+              class="rodape-kurio-titulo-beneficio mb-2 text-[13px] leading-[1.4] font-bold"
+            >
+              Criadores em destaque
+            </h3>
+
+            <p
+              class="rodape-kurio-descricao-beneficio text-[11px] leading-[1.55] text-kurio-secundaria"
+            >
+              Conheça artistas, estúdios e comunidades que moldam a cultura
+              digital na rede.
+            </p>
+          </div>
+
+          <!-- BENEFÍCIO 3 -->
+          <div
+            class="rodape-kurio-beneficio border-r border-[#9e6534] pr-[18px] pl-3 max-[550px]:border-r-0 max-[550px]:border-b max-[550px]:pb-5 max-[550px]:pl-0"
+          >
+            <div
+              class="rodape-kurio-circulo mb-3 flex h-[54px] w-[54px] items-center justify-center rounded-full bg-kurio-destaque text-[18px] font-bold text-kurio-fundo"
+            >
+              D
+            </div>
+
+            <h3
+              class="rodape-kurio-titulo-beneficio mb-2 text-[13px] leading-[1.4] font-bold"
+            >
+              Alertas de lançamentos
+            </h3>
+
+            <p
+              class="rodape-kurio-descricao-beneficio text-[11px] leading-[1.55] text-kurio-secundaria"
+            >
+              Receba calendários de cunhagem, novidades de listas de acesso e
+              análises de mercado.
+            </p>
+          </div>
+
+          <!-- NEWSLETTER -->
+          <div
+            class="rodape-kurio-newsletter min-w-0 pl-4 max-[900px]:border-l max-[900px]:border-[#9e6534] max-[550px]:border-0 max-[550px]:pl-0"
+          >
+            <h3
+              class="rodape-kurio-titulo-newsletter mb-3 text-[13px] leading-[1.2] font-bold"
+            >
+              Antecipe-se ao próximo lançamento
+            </h3>
+
+            <form class="rodape-kurio-formulario mb-3 flex h-[34px] w-full">
+              <input
+                type="email"
+                class="rodape-kurio-campo-email min-w-0 flex-1 rounded-l-[5px] border-none bg-kurio-campo px-[10px] text-[11px] text-kurio-texto outline-none placeholder:text-[#a88661] focus:ring-1 focus:ring-kurio-destaque"
+                placeholder="digite seu e-mail..."
+                aria-label="Seu e-mail"
+                required
+              />
+
+              <button
+                type="submit"
+                class="rodape-kurio-botao-enviar shrink-0 cursor-pointer rounded-r-[5px] bg-kurio-destaque px-[15px] text-[12px] font-bold text-kurio-fundo hover:bg-kurio-destaque-hover"
+              >
+                Enviar
+              </button>
+            </form>
+
+            <p
+              class="rodape-kurio-texto-newsletter text-[10px] leading-[1.7] text-kurio-secundaria"
+            >
+              Receba lançamentos selecionados, histórias de criadores e
+              novidades do mercado.
+            </p>
+          </div>
+        </div>
+
+        <!-- =====================================
+       SEGUNDA LINHA: INFORMAÇÕES DA EMPRESA
+  ===================================== -->
+
+        <div
+          class="rodape-kurio-informacoes grid min-h-[65px] grid-cols-4 items-center gap-5 bg-kurio-faixa px-7 py-[15px] max-[900px]:grid-cols-2 max-[550px]:grid-cols-1 max-[550px]:gap-3 max-[550px]:p-5"
+        >
+          <p class="rodape-kurio-marca text-[12px] font-bold tracking-[0.06em]">
+            KURIO
+          </p>
+
+          <p class="rodape-kurio-frase text-[11px] leading-[1.6]">
+            Feito para colecionadores, criadores e cultura
+          </p>
+
+          <a
+            href="mailto:contato@email.com"
+            class="rodape-kurio-contato break-words text-[11px] text-kurio-texto hover:text-kurio-destaque"
+          >
+            contato@email.com
+          </a>
+
+          <a
+            href="tel:+551140028922"
+            class="rodape-kurio-contato break-words text-[11px] text-kurio-texto hover:text-kurio-destaque"
+          >
+            +55 11 4002 8922
+          </a>
+        </div>
+
+        <!-- =====================================
+       TERCEIRA LINHA: LINKS E REDES SOCIAIS
+  ===================================== -->
+
+        <div
+          class="rodape-kurio-links grid grid-cols-4 gap-[25px] px-7 pt-[27px] pb-[30px] max-[900px]:grid-cols-2 max-[900px]:gap-[35px] max-[550px]:gap-x-[15px] max-[550px]:gap-y-[30px] max-[550px]:px-5 max-[550px]:py-[25px]"
+        >
+          <!-- MEU PERFIL -->
+          <div class="rodape-kurio-coluna flex min-w-0 flex-col">
+            <h3
+              class="rodape-kurio-titulo-coluna mb-3 text-[14px] font-bold max-[550px]:text-[12px]"
+            >
+              Meu perfil
+            </h3>
+
+            <nav
+              class="rodape-kurio-lista-links flex flex-col items-start gap-[11px]"
+            >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Meu perfil</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Minha coleção</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Atividade</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Estúdio do criador</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Lista de interesse</a
+              >
+            </nav>
+          </div>
+
+          <!-- CENTRAL DE AJUDA -->
+          <div class="rodape-kurio-coluna flex min-w-0 flex-col">
+            <h3
+              class="rodape-kurio-titulo-coluna mb-3 text-[14px] font-bold max-[550px]:text-[12px]"
+            >
+              Central de ajuda
+            </h3>
+
+            <nav
+              class="rodape-kurio-lista-links flex flex-col items-start gap-[11px]"
+            >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Central de ajuda</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Como comprar NFTs</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Carteira e segurança</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Política do mercado</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Denunciar item</a
+              >
+            </nav>
+          </div>
+
+          <!-- COLEÇÕES -->
+          <div class="rodape-kurio-coluna flex min-w-0 flex-col">
+            <h3
+              class="rodape-kurio-titulo-coluna mb-3 text-[14px] font-bold max-[550px]:text-[12px]"
+            >
+              Coleções
+            </h3>
+
+            <nav
+              class="rodape-kurio-lista-links flex flex-col items-start gap-[11px]"
+            >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Arte digital</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Fotografia</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Música</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Arte 3D</a
+              >
+              <a
+                href="#"
+                class="text-[11px] leading-[1.3] text-kurio-texto hover:text-kurio-destaque max-[550px]:text-[10px]"
+                >Utilidade</a
+              >
+            </nav>
+          </div>
+
+          <!-- REDES SOCIAIS -->
+          <div class="rodape-kurio-coluna flex min-w-0 flex-col">
+            <h3
+              class="rodape-kurio-titulo-coluna mb-3 text-[14px] font-bold max-[550px]:text-[12px]"
+            >
+              Redes sociais
+            </h3>
+
+            <div class="rodape-kurio-redes flex flex-wrap gap-[6px]">
+              <!-- FACEBOOK -->
+              <a
+                href="#"
+                class="rodape-kurio-icone-social flex h-[25px] w-[25px] items-center justify-center rounded-[4px] border border-kurio-destaque text-kurio-destaque transition-colors hover:bg-kurio-destaque hover:text-kurio-fundo"
+                aria-label="Facebook"
+              >
+                <svg
+                  class="h-[15px] w-[15px] fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M15 3h-3a4 4 0 0 0-4 4v3H5v4h3v7h4v-7h3l1-4h-4V7h3V3z"
+                  />
+                </svg>
+              </a>
+
+              <!-- INSTAGRAM -->
+              <a
+                href="#"
+                class="rodape-kurio-icone-social flex h-[25px] w-[25px] items-center justify-center rounded-[4px] border border-kurio-destaque text-kurio-destaque transition-colors hover:bg-kurio-destaque hover:text-kurio-fundo"
+                aria-label="Instagram"
+              >
+                <svg
+                  class="h-[15px] w-[15px] fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="3"
+                    y="3"
+                    width="18"
+                    height="18"
+                    rx="5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <circle cx="17.5" cy="6.5" r="1.2" />
+                </svg>
+              </a>
+
+              <!-- TWITTER -->
+              <a
+                href="#"
+                class="rodape-kurio-icone-social flex h-[25px] w-[25px] items-center justify-center rounded-[4px] border border-kurio-destaque text-kurio-destaque transition-colors hover:bg-kurio-destaque hover:text-kurio-fundo"
+                aria-label="Twitter"
+              >
+                <svg
+                  class="h-[15px] w-[15px] fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M22 5.9a8 8 0 0 1-2.3.6
+                     4 4 0 0 0 1.8-2.2
+                     8 8 0 0 1-2.6 1
+                     4 4 0 0 0-6.8 3.6
+                     11 11 0 0 1-8-4.1
+                     4 4 0 0 0 1.2 5.3
+                     4 4 0 0 1-1.8-.5
+                     4 4 0 0 0 3.2 4
+                     4 4 0 0 1-1.8.1
+                     4 4 0 0 0 3.7 2.8
+                     8 8 0 0 1-5 1.7
+                     11 11 0 0 0 17-9.3
+                     8 8 0 0 0 2-2z"
+                  />
+                </svg>
+              </a>
+
+              <!-- LINKEDIN -->
+              <a
+                href="#"
+                class="rodape-kurio-icone-social flex h-[25px] w-[25px] items-center justify-center rounded-[4px] border border-kurio-destaque text-kurio-destaque transition-colors hover:bg-kurio-destaque hover:text-kurio-fundo"
+                aria-label="LinkedIn"
+              >
+                <svg
+                  class="h-[15px] w-[15px] fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 9v11M4 4v1M10 20V9h4v2
+                     c1-2 6-3 6 3v6M10 14v6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </a>
+
+              <!-- YOUTUBE -->
+              <a
+                href="#"
+                class="rodape-kurio-icone-social flex h-[25px] w-[25px] items-center justify-center rounded-[4px] border border-kurio-destaque text-kurio-destaque transition-colors hover:bg-kurio-destaque hover:text-kurio-fundo"
+                aria-label="YouTube"
+              >
+                <svg
+                  class="h-[15px] w-[15px] fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="2"
+                    y="5"
+                    width="20"
+                    height="14"
+                    rx="4"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path d="m10 9 5 3-5 3z" />
+                </svg>
+              </a>
+            </div>
+
+            <!-- CARTEIRAS -->
+            <div class="rodape-kurio-carteiras mt-[25px]">
+              <h3
+                class="rodape-kurio-titulo-coluna mb-3 text-[14px] font-bold max-[550px]:text-[12px]"
+              >
+                Carteiras compatíveis
+              </h3>
+
+              <div
+                class="rodape-kurio-lista-carteiras inline-block max-w-full rounded-[4px] border border-[#604020] bg-kurio-campo px-[7px] py-[6px] text-[8px] leading-[1.3] font-bold text-kurio-destaque whitespace-normal"
+              >
+                METAMASK · WALLETCONNECT · COINBASE
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =====================================
+       ÚLTIMA LINHA: DIREITOS AUTORAIS
+  ===================================== -->
+
+        <div
+          class="rodape-kurio-direitos bg-kurio-escuro px-[15px] py-[13px] text-center text-[10px] tracking-[0.02em] max-[550px]:text-[9px]"
+        >
+          © 2026 Kurio. Propriedade digital para todos.
+        </div>
+      </footer>
+  </div>
+
+  <div id="mercado-zoom" class="fixed inset-0 z-[8000] hidden items-center justify-center bg-black/90 p-6" role="dialog" aria-modal="true" aria-label="Visualizar imagem ampliada" hidden>
+    <button id="mercado-fechar-zoom" type="button" aria-label="Fechar visualização ampliada" class="absolute top-5 right-6 text-[30px] text-kurio-destaque hover:text-kurio-texto">×</button>
+    <img id="mercado-imagem-zoom" src="../src/images/primeape1.png" alt="Imagem ampliada do NFT" class="max-h-[85vh] max-w-[90vw] rounded-xl object-contain" />
+  </div>
+  <div id="mercado-sobreposicao-login" class="fixed inset-0 z-[9000] hidden items-center justify-center bg-black/70 p-4 backdrop-blur-[1px]" role="dialog" aria-modal="true" aria-label="Entrar ou criar conta na KURIO" hidden>
+    <iframe id="mercado-janela-login" title="Acesso à conta KURIO" src="../login/index.html" class="block h-[calc(100dvh-32px)] max-h-[748px] w-full max-w-[622px] border-0 bg-kurio-painel shadow-2xl"></iframe>
+  </div>
+  <p id="mercado-aviso" role="status" aria-live="polite" class="pointer-events-none fixed right-5 bottom-5 z-[9500] hidden max-w-[360px] rounded-lg border border-kurio-destaque bg-kurio-painel px-4 py-3 text-[12px] text-kurio-texto shadow-xl"></p>
+  <script src="./interacoes.js" defer></script>
+  <script src="../carrinho/vincular-carrinho.js" defer></script>
+</body>
+</html>

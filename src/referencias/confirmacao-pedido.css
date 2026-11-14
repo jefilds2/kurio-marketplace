@@ -1,0 +1,14 @@
+/* KURIO | Tokens exclusivos da confirmação de pedido.
+   O layout e as interações visuais utilizam as classes utilitárias
+   do Tailwind CSS v4 diretamente em index.html. */
+:root {
+  --confirmacao-fundo: #150e0b;
+  --confirmacao-painel: #271914;
+  --confirmacao-campo: #2f1e18;
+  --confirmacao-texto: #f5f1eb;
+  --confirmacao-secundario: #ba9a7c;
+  --confirmacao-destaque: #d28a4c;
+  --confirmacao-hover: #e6a15f;
+  --confirmacao-borda: #4b3025;
+  --confirmacao-fonte: 'Roboto Mono', monospace;
+}
