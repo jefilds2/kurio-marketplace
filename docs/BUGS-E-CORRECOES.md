@@ -158,6 +158,13 @@ O reteste no Chromium mobile passou em desenvolvimento e no preview do build. No
 - **Correção:** deixar o aviso visível e perceptível para leitores de tela, permitindo que toques e cliques cheguem aos controles atrás dele.
 - **Reteste:** o Playwright toca no botão enquanto o aviso o cobre e verifica os dois produtos na lista após refresh e login.
 
+## BUG-024 · Catálogo caía quando o Service Worker reiniciava
+
+- **Reprodução:** com o catálogo aberto, interrompa o Service Worker e faça outra consulta. Na versão anterior, `/api/nfts` retornava o HTML da SPA com status 200, e a home caía ao ler `destaques[0]`.
+- **Causa:** o worker perdia o registro da aba guardado em memória. O Axios aceitava a resposta HTML no lugar do JSON esperado.
+- **Correção:** as chamadas feitas com o mock ativo identificam a aba para restaurar a interceptação na primeira requisição após o reinício. O Axios rejeita uma resposta que não possa ser lida como JSON.
+- **Reteste:** Playwright interrompe o worker e verifica a consulta seguinte sem recarregar. Outro teste simula a resposta HTML e confirma que o catálogo permite tentar de novo.
+
 ## Como registrar o próximo bug
 
 Crie uma ficha com data, estado, requisito, ambiente, viewport, cenário, passos, resultado esperado, resultado observado, causa, arquivos da correção, teste e evidência do reteste. Use `Aberto`, `Corrigido` ou `Verificado`. As regras do desafio estão em [Regras de negócio](REGRAS-DE-NEGOCIO.md).

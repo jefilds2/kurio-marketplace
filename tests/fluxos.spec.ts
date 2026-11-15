@@ -489,6 +489,64 @@ test('skeletons, falha de rede e nova tentativa', async ({ page }) => {
   await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
 })
 
+test('o catálogo continua funcionando após reiniciar o Service Worker', async ({ page }, info) => {
+  const cdp = await page.context().newCDPSession(page)
+  const workersAtivos = new Set<string>()
+  const workersInterrompidos = new Set<string>()
+  cdp.on('ServiceWorker.workerVersionUpdated', ({ versions }) => {
+    for (const versao of versions) {
+      if (!versao.scriptURL.endsWith('/mockServiceWorker.js')) continue
+      if (versao.runningStatus === 'running') workersAtivos.add(versao.versionId)
+      else workersAtivos.delete(versao.versionId)
+      if (versao.runningStatus === 'stopped') workersInterrompidos.add(versao.versionId)
+    }
+  })
+  await cdp.send('ServiceWorker.enable')
+  await page.goto('/')
+  await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
+  await expect.poll(() => workersAtivos.size).toBe(1)
+  const [versionId] = workersAtivos
+  workersInterrompidos.delete(versionId)
+  await cdp.send('ServiceWorker.stopWorker', { versionId })
+  await expect.poll(() => workersInterrompidos.has(versionId)).toBe(true)
+  const busca = page.locator(info.project.name === 'mobile' ? '.referencia-busca-mobile input' : '.referencia-busca-desktop input')
+  if (info.project.name === 'mobile') await busca.fill('Emerald')
+  else {
+    await page.getByRole('button', { name: 'Buscar', exact: true }).click()
+    const janela = page.getByRole('dialog', { name: 'Buscar NFTs' })
+    await janela.getByRole('textbox', { name: 'Explorar coleções' }).fill('Emerald')
+    await janela.getByRole('button', { name: 'Buscar', exact: true }).click()
+  }
+  await expect(page.getByRole('status').filter({ hasText: '2 NFTs' })).toBeVisible()
+})
+
+test('uma resposta HTML da API permite recuperar o catálogo', async ({ page }) => {
+  await page.addInitScript(() => {
+    navigator.serviceWorker?.addEventListener('message', evento => {
+      if (!sessionStorage.getItem('teste:catalogo-html') || evento.data?.type !== 'REQUEST') return
+      if (!new URL(evento.data.payload.url).pathname.endsWith('/api/nfts')) return
+      evento.stopImmediatePropagation()
+      evento.ports[0].postMessage({
+        type: 'MOCK_RESPONSE',
+        data: {
+          status: 200,
+          headers: { 'content-type': 'text/html' },
+          body: new TextEncoder().encode('<html><title>KURIO</title></html>').buffer,
+        },
+      })
+    })
+  })
+  await page.goto('/')
+  await expect(page.getByRole('status').filter({ hasText: '20 NFTs' })).toBeVisible()
+  await page.evaluate(() => sessionStorage.setItem('teste:catalogo-html', '1'))
+  await page.getByRole('button', { name: 'Novos lançamentos', exact: true }).click()
+  const alerta = page.getByRole('alert').filter({ hasText: 'Não foi possível acessar o serviço.' })
+  await expect(alerta).toBeVisible()
+  await page.evaluate(() => sessionStorage.removeItem('teste:catalogo-html'))
+  await alerta.getByRole('button', { name: 'Tentar novamente' }).click()
+  await expect(alerta).toBeHidden()
+  await expect(page.locator('.grade-nfts .card-nft').first()).toBeVisible()
+})
 
 test('modo normal recupera o catálogo sem limpar o carrinho', async ({ page }) => {
   await detalhe(page)

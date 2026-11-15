@@ -16,10 +16,16 @@ function visitante() {
   localStorage.setItem(chaveVisitante, id)
   return id
 }
-export const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE || '/api', timeout: 3200 })
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
+  timeout: 3200,
+  responseType: 'json',
+  transitional: { silentJSONParsing: false },
+})
 api.interceptors.request.use(config => {
   const token = tokenAtual()
   if (token) config.headers.set('Authorization', `Bearer ${token}`)
+  if (mocksAtivos) config.headers.set('X-Kurio-Mock', '1')
   config.headers.set('X-Kurio-Visitante', visitante())
   return config
 })

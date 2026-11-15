@@ -4,7 +4,7 @@
 /**
  * Mock Service Worker.
  * @see https://github.com/mswjs/msw
- * KURIO retains one local patch in passthrough().
+ * KURIO retains local patches for client recovery and passthrough().
  */
 
 const PACKAGE_VERSION = '2.15.0'
@@ -103,6 +103,12 @@ addEventListener('fetch', function (event) {
     event.request.mode !== 'same-origin'
   ) {
     return
+  }
+
+  // KURIO: the app marks mock API requests after MSW starts. Re-register
+  // that client on its first request after the worker loses its memory.
+  if (event.clientId && event.request.headers.get('x-kurio-mock') === '1') {
+    activeClientIds.add(event.clientId)
   }
 
   // Bypass all requests when there are no active clients.
